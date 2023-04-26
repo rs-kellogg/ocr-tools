@@ -6,11 +6,11 @@ from importlib import resources
 from pathlib import Path
 from ocrtools import data
 from ocrtools import __app_name__, __version__
-# from ocrtools import aws
+from ocrtools import preprocess
 
 # -----------------------------------------------------------------------------
 app = typer.Typer()
-# app.add_typer(aws.cli.app, name="aws")
+app.add_typer(preprocess.cli.app, name="preprocess")
 console = cons.Console(style="green on black")
 
 
@@ -19,10 +19,9 @@ with resources.path(data, "config.yml") as path:
     CONFIG_FILE_PATH.touch(exist_ok=True)
 
 with open(CONFIG_FILE_PATH) as conf_file:
-    console.print(f"CONFIG_FILE_PATH: {CONFIG_FILE_PATH}")
     CONFIG = yaml.load(conf_file, Loader=yaml.FullLoader)
     CONFIG = CONFIG if CONFIG else {}
-    # aws.cli.CONFIG = CONFIG
+    preprocess.cli.CONFIG = CONFIG
 
 
 def _version_callback(value: bool) -> None:
@@ -82,6 +81,7 @@ def config(
                 conf = conf[p]
 
     CONFIG_FILE_PATH.write_text(yaml.dump(CONFIG))
+    console.print(f"CONFIG_FILE_PATH: {CONFIG_FILE_PATH}")
     console.print(f"[green]CURRENT CONFIG SETTINGS: {CONFIG}")
 
 
