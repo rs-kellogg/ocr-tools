@@ -9,6 +9,10 @@ requirements = [
     "typer-cli",
     "rich",
     "pyyaml",
+    "scipy",
+    "pandas",
+    "numpy",
+    "Pillow",
 ]
 
 test_requirements = [
