@@ -30,8 +30,7 @@ setup(
     },
     install_requires=requirements,
     include_package_data=True,
-    keywords="wrangler",
-    name="wrangler",
+    name="ocrtools",
     packages=find_packages(
         include=["ocrtools", "ocrtools.*"]
     ),
