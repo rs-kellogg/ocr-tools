@@ -12,7 +12,23 @@ requirements = [
     "scipy",
     "pandas",
     "numpy",
+    "scikit-learn",
+    "scikit-image",
+    "PyMuPDF",
+    "pdf2image",
+    "pdfplumber",
     "Pillow",
+    "opencv-python",
+    "pdf2image",
+    "pytesseract",
+    "deskew",
+    "boto3",
+    "amazon-textract-textractor",
+    "amazon-textract-response-parser",
+    "amazon-textract-overlayer",
+    "amazon-textract-prettyprinter",
+    "amazon-textract-geofinder",
+    "amazon-textract-caller",
 ]
 
 test_requirements = [
