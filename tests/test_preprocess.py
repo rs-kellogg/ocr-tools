@@ -1,2 +1,2 @@
 def test_smoke(config):
-    assert config['test'] == 'test'
+    assert config["test"] == "test"

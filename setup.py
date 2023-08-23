@@ -11,7 +11,6 @@ requirements = [
     "pyyaml",
     "scipy",
     "pandas",
-    "numpy",
     "scikit-learn",
     "scikit-image",
     "PyMuPDF",
@@ -24,12 +23,15 @@ requirements = [
     "deskew",
     "boto3",
     "amazon-textract-textractor",
-    "amazon-textract-response-parser",
-    "amazon-textract-overlayer",
-    "amazon-textract-prettyprinter",
-    "amazon-textract-geofinder",
+    "amazon-textract-helper",
     "amazon-textract-caller",
+    "amazon-textract-geofinder",
+    "amazon-textract-response-parser",
+    "amazon-textract-prettyprinter",
+    "sentence-transformers",
+    "solara",
 ]
+
 
 test_requirements = [
     "pytest>=3",
