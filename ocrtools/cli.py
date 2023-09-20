@@ -6,11 +6,12 @@ from importlib import resources
 from pathlib import Path
 from ocrtools import data
 from ocrtools import __app_name__, __version__
-from ocrtools import preprocess
+from ocrtools import preprocess, pdftools
 
 # -----------------------------------------------------------------------------
 app = typer.Typer()
 app.add_typer(preprocess.cli.app, name="preprocess")
+app.add_typer(pdftools.cli.app, name="pdftools")
 console = cons.Console(style="green on black")
 
 
@@ -22,6 +23,7 @@ with open(CONFIG_FILE_PATH) as conf_file:
     CONFIG = yaml.load(conf_file, Loader=yaml.FullLoader)
     CONFIG = CONFIG if CONFIG else {}
     preprocess.cli.CONFIG = CONFIG
+    pdftools.cli.CONFIG = CONFIG
 
 
 def _version_callback(value: bool) -> None:
