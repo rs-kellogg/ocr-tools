@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling >=0.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "review-portal"
+license = {file = "LICENSE"}
+classifiers = ["License :: OSI Approved :: MIT License"]
+dynamic = ["version", "description"]
+dependencies = [
+    "solara",
+    "vaex",
+    "plotly",
+    "PyMUPDF",
+    "ipydatagrid",
+    "bqplot",
+]
+
+[tool.hatch.version]
+path = "review_portal/__init__.py"
+
+
+
+[project.urls]
+Home = "https://www.github.com/widgetti/solara"
+
+[tool.black]
+line-length = 160
+
+[tool.isort]
+profile = "black"
