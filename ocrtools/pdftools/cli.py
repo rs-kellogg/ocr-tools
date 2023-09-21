@@ -39,6 +39,7 @@ def ocr_pages(
         doc_map[img_file] = F.ocr_page_async(img_file)
 
     for img_file in doc_map:
+        console.print(f"saving OCR results for page: {img_file}")
         doc = doc_map[img_file]
         doc.text
         json_path = outdir/f"json/{img_file.stem}.json"
