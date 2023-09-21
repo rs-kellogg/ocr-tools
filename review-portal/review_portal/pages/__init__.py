@@ -1,1 +1,1 @@
-from .main import Page
+from review_portal.pages.main import Page

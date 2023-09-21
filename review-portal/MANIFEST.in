@@ -1,0 +1,4 @@
+include review_portal/public/pdf/*.pdf
+include review_portal/public/png/*.png
+include review_portal/public/json/*.json
+include review_portal/public/csv/*.csv

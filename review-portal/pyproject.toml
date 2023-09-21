@@ -1,11 +1,17 @@
 [build-system]
-requires = ["hatchling >=0.25"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
 name = "review-portal"
 license = {file = "LICENSE"}
-classifiers = ["License :: OSI Approved :: MIT License"]
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
 dynamic = ["version", "description"]
 dependencies = [
     "solara",
@@ -15,13 +21,21 @@ dependencies = [
     "bqplot",
 ]
 
+[project.urls]
+Home = "https://github.com/rs-kellogg/ocr-tools/tree/main/review-portal"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+namespaces = true
+where = ["review_portal"]
+
+# [tool.setuptools.package-data]
+# "review_portal.public.data" = ["*.json", "*.csv", "*.txt", "*.pdf"]
+
 [tool.hatch.version]
 path = "review_portal/__init__.py"
-
-
-
-[project.urls]
-Home = "https://www.github.com/widgetti/solara"
 
 [tool.black]
 line-length = 160

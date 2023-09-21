@@ -15,11 +15,12 @@ HERE = Path(__file__)
 
 @solara.component
 def Page(name: Optional[str] = '1970'):
-    DATA_DIR = HERE.parent/f"../public/data/{name}"
-    CSV_DIR = DATA_DIR/"ocr/csv"
-    PNG_DIR = DATA_DIR/"ocr/png"
+    DATA_DIR = HERE.parent/f"../public/"
+    PDF_DIR = DATA_DIR/"pdf"
+    CSV_DIR = DATA_DIR/"csv"
+    PNG_DIR = DATA_DIR/"png"
     
-    pdf_file = DATA_DIR/"pdf"/f"{name}.pdf"
+    pdf_file = PDF_DIR/f"{name}.pdf"
     csv_files = list(CSV_DIR.glob("*.csv"))
     csv_files.sort()
     png_files = list(PNG_DIR.glob("*.png"))
@@ -43,7 +44,7 @@ def Page(name: Optional[str] = '1970'):
 
             with solara.Card("Select File"):
                 with solara.Column():
-                    directory, set_directory = solara.use_state(DATA_DIR/"ocr/csv")
+                    directory, set_directory = solara.use_state(CSV_DIR)
                     file, set_file = solara.use_state(cast(Optional[Path], None))
                     path, set_path = solara.use_state(cast(Optional[Path], None))
                     def reset_path():
@@ -65,9 +66,9 @@ def Page(name: Optional[str] = '1970'):
             with solara.Card(name, margin=0):
                 with solara.lab.Tabs():
                     with solara.lab.Tab("PDF"):
-                        pdf_viewer(name, int(page_num))
+                        pdf_viewer(f"{name}.pdf", int(page_num))
                     with solara.lab.Tab("PNG"):
-                        solara.Image(f"/static/public/data/{name}/ocr/png/page-{page_num}.png")
+                        solara.Image(f"/static/public/png/page-{page_num}.png")
 
             with solara.Card(title=f"Page: {page_num}"):
                 datagrid(csv_file)

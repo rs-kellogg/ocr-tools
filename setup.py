@@ -9,18 +9,21 @@ requirements = [
     "typer-cli",
     "rich",
     "pyyaml",
-    "scipy",
     "pandas",
-    "scikit-learn",
-    "scikit-image",
-    "PyMuPDF",
-    "pdf2image",
-    "pdfplumber",
+    "matplotlib",
+    "tqdm",
+
     "Pillow",
+    "PyMuPDF",
+    "pymupdf-fonts",
+    # "ocrmypdf",
+    # "pdf2image",
+    # "img2pdf",
+    # "unpaper",
     "opencv-python",
-    "pdf2image",
-    "pytesseract",
+    # "pytesseract",
     "deskew",
+
     "boto3",
     "amazon-textract-textractor",
     "amazon-textract-helper",
@@ -29,7 +32,6 @@ requirements = [
     "amazon-textract-response-parser",
     "amazon-textract-prettyprinter",
     "sentence-transformers",
-    "solara",
 ]
 
 

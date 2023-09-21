@@ -78,7 +78,7 @@ def pdf_viewer(name: str, page_number: int):
         title="Source Document"
         width="100%"
         height="1000"
-        src="/static/public/data/{name}/pdf/{name}.pdf#page={page_number}"
+        src="static/public/pdf/{name}#page={page_number}"
         scrolling="yes"
     ></iframe>"
     """
