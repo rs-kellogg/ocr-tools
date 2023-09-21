@@ -1,11 +1,43 @@
+import os
 from pathlib import Path
 from typing import Iterable
 import fitz
+from PIL import Image
+from textractor.entities.document import Document
+from textractor.entities.lazy_document import LazyDocument
+from textractor import Textractor
+from textractor.data.constants import TextractFeatures
+
+
+def ocr_page(img_file: Path, aws_profile: str = "default") -> Document:
+    extractor = Textractor(profile_name=aws_profile)
+    doc = extractor.analyze_document(
+        file_source=Image.open(str(img_file)),
+        features=[TextractFeatures.TABLES],
+        save_image=True,
+    )
+    return doc
+
+
+def ocr_page_async(
+        img_file: Path, 
+        aws_profile: str = "default",
+        s3_bucket: str = "s3://kellogg-ocr/temp",
+    ) -> LazyDocument:
+    extractor = Textractor(profile_name=aws_profile)
+    doc = extractor.start_document_analysis(
+        file_source=Image.open(str(img_file)),
+        features=[TextractFeatures.TABLES],
+        s3_output_path=s3_bucket,
+        s3_upload_path=s3_bucket,
+        save_image=True,
+    )
+    return doc
 
 
 def extract_pages(pdf: Path, outdir: Path, page_start: int, page_end: int):
     doc = fitz.open(pdf)
-    
+
     if page_start is None:
         page_start = 0
     if page_end is None:
