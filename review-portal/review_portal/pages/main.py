@@ -5,11 +5,12 @@ from review_portal.components.data import datagrid, pdf_viewer
 
 
 HERE = Path(__file__)
-DATA_DIR = HERE.parent/"../public/data/1978"
 
 
 @solara.component
-def Page():
+def Page(name: Optional[str] = '1978'):
+    DATA_DIR = HERE.parent/f"../public/data/{name}"
+    
     with solara.Column():
         solara.Title("KRS Review App")
 
@@ -37,12 +38,12 @@ def Page():
         gutters = solara.reactive(True)
         gutters_dense = solara.reactive(True)
         with solara.ColumnsResponsive([1, 1], gutters=gutters.value, gutters_dense=gutters_dense.value) as main:
-            with solara.Card("1978", margin=0):
+            with solara.Card(name, margin=0):
                 pdf_viewer(344)
             
             # with solara.Card(title="page"):
             #     solara.Image("/static/public/page-1000.png")
 
             with solara.Card(title="page-343-03-left.csv"):
-                df_path = f"{HERE.parent}/../public/data/1978/csv/page-343-03-left.csv"
+                df_path = f"{HERE.parent}/../public/data/{name}/csv/page-343-03-left.csv"
                 datagrid(df_path)
