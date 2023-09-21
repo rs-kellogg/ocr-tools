@@ -59,6 +59,7 @@ def datagrid(path):
     col_widths = {"company": 300}
 
     df = pd.read_csv(path)
+    df = df.drop(columns=['Unnamed: 0'])
     dg = DataGrid.element(
         dataframe=df,
         editable=True,
@@ -71,14 +72,24 @@ def datagrid(path):
 
 
 @solara.component
-def pdf_viewer(page_number: int):
+def pdf_viewer(name: str, page_number: int):
     html = f"""
     <iframe
         title="Source Document"
         width="100%"
         height="1000"
-        src="/static/public/data/1978/1978.pdf#page={page_number}"
+        src="/static/public/data/{name}/pdf/{name}.pdf#page={page_number}"
         scrolling="yes"
     ></iframe>"
     """
     solara.display(HTML(html))
+
+
+text = solara.reactive("")
+continuous_update = solara.reactive(True)
+
+@solara.component
+def text_input():
+    solara.InputText("Enter some text", value=text, continuous_update=continuous_update.value)
+    with solara.Row():
+        solara.Button("Clear", on_click=lambda: text.set(""))    

@@ -39,7 +39,7 @@ def ocr_pages(
         doc_map[img_file] = F.ocr_page_async(img_file)
 
     for img_file in doc_map:
-        console.print(f"saving OCR results for page: {img_file}")
+        console.print(f"Saving OCR results for page: {img_file}")
         doc = doc_map[img_file]
         doc.text
         json_path = outdir/f"json/{img_file.stem}.json"
@@ -50,3 +50,14 @@ def ocr_pages(
         png_path.parent.mkdir(parents=True, exist_ok=True)
         doc.document.visualize().save(png_path)
  
+
+@app.command()
+def extract_tables(
+    indir: Path = typer.Argument(..., help="Path to input files"),
+    outdir: Path = typer.Option(Path("."), help="Path to output CSV files"),
+):
+    console.print(f"Extracting tables from: {indir}")
+    outdir.mkdir(parents=True, exist_ok=True)
+    for json_file in indir.glob("*.json"):
+        console.print(f"Extracting tables from: {json_file}")
+        F.extract_tables(json_file, outdir)

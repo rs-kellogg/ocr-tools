@@ -35,6 +35,20 @@ def ocr_page_async(
     return doc
 
 
+def extract_tables(json_path: Path, outdir: Path):
+    if type(json_path) == str:
+        json_path = Path(json_path)
+    if type(outdir) == str:
+        outdir = Path(outdir)
+    with open(json_path, "r") as f:
+        doc = Document.open(f)
+        print(f"Found {len(doc.tables)} tables in {json_path.name}")
+        for i, table in enumerate(doc.tables):
+            csv_file = outdir/f"{json_path.stem}-{i+1}.csv"
+            csv_file.parent.mkdir(parents=True, exist_ok=True)
+            csv_file.write_text(table.to_csv())
+
+
 def extract_pages(pdf: Path, outdir: Path, page_start: int, page_end: int):
     doc = fitz.open(pdf)
 

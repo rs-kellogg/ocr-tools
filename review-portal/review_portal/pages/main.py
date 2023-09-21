@@ -1,23 +1,49 @@
 from pathlib import Path
 from typing import Optional, cast
 import solara
-from review_portal.components.data import datagrid, pdf_viewer
+import solara.lab
+from review_portal.components.data import (
+    datagrid, 
+    pdf_viewer, 
+    text_input,
+)
+
 
 
 HERE = Path(__file__)
 
 
 @solara.component
-def Page(name: Optional[str] = '1978'):
+def Page(name: Optional[str] = '1970'):
     DATA_DIR = HERE.parent/f"../public/data/{name}"
+    CSV_DIR = DATA_DIR/"ocr/csv"
+    PNG_DIR = DATA_DIR/"ocr/png"
     
+    pdf_file = DATA_DIR/"pdf"/f"{name}.pdf"
+    csv_files = list(CSV_DIR.glob("*.csv"))
+    csv_files.sort()
+    png_files = list(PNG_DIR.glob("*.png"))
+    png_files.sort()
+
     with solara.Column():
         solara.Title("KRS Review App")
 
         with solara.Sidebar():
+            with solara.Card():
+                with solara.CardActions():
+                    solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-left-bold-box")
+                    solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-right-bold-box")
+                    solara.Button("", outlined=True, color="primary", icon_name="save")
+                    solara.Button("", outlined=True, color="primary", icon_name="refresh")
+                    solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up")
+                    solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down")
+
+            with solara.Card(title="Notes"):
+                text_input()
+
             with solara.Card("Select File"):
                 with solara.Column():
-                    directory, set_directory = solara.use_state(DATA_DIR/"csv")
+                    directory, set_directory = solara.use_state(DATA_DIR/"ocr/csv")
                     file, set_file = solara.use_state(cast(Optional[Path], None))
                     path, set_path = solara.use_state(cast(Optional[Path], None))
                     def reset_path():
@@ -30,20 +56,18 @@ def Page(name: Optional[str] = '1978'):
                         on_file_open=set_file
                     )
         
-        with solara.Card():
-            with solara.CardActions():
-                solara.Button("Back", text=True)
-                solara.Button("Next", text=True)
-        
         gutters = solara.reactive(True)
         gutters_dense = solara.reactive(True)
         with solara.ColumnsResponsive([1, 1], gutters=gutters.value, gutters_dense=gutters_dense.value) as main:
-            with solara.Card(name, margin=0):
-                pdf_viewer(344)
+            csv_file = csv_files[0]
+            page_num = csv_file.stem.split('-')[-2]
             
-            # with solara.Card(title="page"):
-            #     solara.Image("/static/public/page-1000.png")
+            with solara.Card(name, margin=0):
+                with solara.lab.Tabs():
+                    with solara.lab.Tab("PDF"):
+                        pdf_viewer(name, int(page_num))
+                    with solara.lab.Tab("PNG"):
+                        solara.Image(f"/static/public/data/{name}/ocr/png/page-{page_num}.png")
 
-            with solara.Card(title="page-343-03-left.csv"):
-                df_path = f"{HERE.parent}/../public/data/{name}/csv/page-343-03-left.csv"
-                datagrid(df_path)
+            with solara.Card(title=f"Page: {page_num}"):
+                datagrid(csv_file)
