@@ -66,40 +66,41 @@ def Page(name: Optional[str] = '1970'):
         grid_layout_initial = [
             {"h": 1, "i": "0", "moved": False, "w": 6, "x": 0, "y": 0},
             {"h": 1, "i": "1", "moved": False, "w": 6, "x": 6, "y": 0},
+            {"h": 1, "i": "2", "moved": False, "w": 6, "x": 0, "y": 1},
+            {"h": 1, "i": "3", "moved": False, "w": 6, "x": 6, "y": 1},
         ]
         grid_layout, set_grid_layout = solara.use_state(grid_layout_initial)
         with solara.VBox() as main:
-            resizable = solara.ui_checkbox("Allow resizing", value=True)
-            draggable = solara.ui_checkbox("Allow dragging", value=True)
-
             def reset_layout():
                 set_grid_layout(grid_layout_initial)
 
-            
             csv_file = csv_files[0]
             page_num = csv_file.stem.split('-')[-2]
 
-            with solara.Card(margin=0) as card1:
+            card1 = solara.Card(title="source", margin=0)
+            card2 = solara.Card(title="table", margin=0)
+            with solara.Card(margin=0) as card3:
                  with solara.lab.Tabs():
                     with solara.lab.Tab("PDF"):
                         pdf_viewer(f"{name}.pdf", int(page_num))
                     with solara.lab.Tab("PNG"):
                         solara.Image(f"/static/public/png/page-{page_num}.png")
 
-            with solara.Card(margin=0) as card2:
+            with solara.Card(margin=0) as card4:
                 datagrid(csv_file)
 
-            items = [card1, card2]
+            items = [card1, card2, card3, card4]
 
             solara.Button("Reset to initial layout", on_click=reset_layout)
             solara.GridDraggable(
                 items=items, 
                 grid_layout=grid_layout, 
-                resizable=resizable, 
-                draggable=draggable, 
+                resizable=True, 
+                draggable=True, 
                 on_grid_layout=set_grid_layout
             )
 
+        main
         
         # gutters = solara.reactive(True)
         # gutters_dense = solara.reactive(True)
