@@ -64,9 +64,9 @@ def Page(name: Optional[str] = '1970'):
         # -------------------------------------------------------------------------------------------------------------
         # Main content
         grid_layout_initial = [
-            {"h": 1, "i": "0", "moved": False, "w": 6, "x": 0, "y": 0},
+            {"h": 2, "i": "0", "moved": False, "w": 6, "x": 0, "y": 0},
             {"h": 5, "i": "1", "moved": False, "w": 6, "x": 6, "y": 0},
-            {"h": 1, "i": "2", "moved": False, "w": 6, "x": 0, "y": 1},
+            {"h": 1, "i": "2", "moved": False, "w": 6, "x": 0, "y": 2},
             {"h": 1, "i": "3", "moved": False, "w": 6, "x": 6, "y": 5},
         ]
         grid_layout, set_grid_layout = solara.use_state(grid_layout_initial)
@@ -77,8 +77,8 @@ def Page(name: Optional[str] = '1970'):
             csv_file = csv_files[0]
             page_num = csv_file.stem.split('-')[-2]
 
-            card1 = solara.Card(title="source", margin=0)
-            card2 = solara.Card(title="table", margin=0)
+            card1 = solara.Card(title=f"{name}.pdf", margin=0)
+            card2 = solara.Card(title=f"{csv_file.name}", margin=0)
             with solara.Card(margin=0) as card3:
                  with solara.lab.Tabs():
                     with solara.lab.Tab("PDF"):
@@ -96,7 +96,7 @@ def Page(name: Optional[str] = '1970'):
                 items=items, 
                 grid_layout=grid_layout, 
                 resizable=True, 
-                draggable=True, 
+                draggable=False, 
                 on_grid_layout=set_grid_layout
             )
 

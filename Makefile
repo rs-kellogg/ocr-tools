@@ -51,7 +51,7 @@ clean-notebooks: ## remove notebook junk
 	find . -name '.ipynb_checkpoints' -exec rm -rf {} +
 
 clean-misc: ## misc. junk
-	find . -name '.DS_store' -exec rm -f {} +
+	find . -name '.DS_Store' -exec rm -f {} +
 	find . -name 'temp' -exec rm -rf {} +
 
 lint: ## check style with flake8

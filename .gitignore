@@ -65,7 +65,4 @@ dmypy.json
 # Misc
 **/temp/
 **/*~
-**/public/png/*
-**/public/pdf/*
-**/public/json/*
-**/public/csv/*
+
