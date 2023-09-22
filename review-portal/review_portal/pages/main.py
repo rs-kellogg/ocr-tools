@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Optional, cast
 import solara
 import solara.lab
+from solara.alias import rv
 from review_portal.components.data import (
     datagrid, 
     pdf_viewer, 
@@ -30,6 +31,8 @@ def Page(name: Optional[str] = '1970'):
     with solara.Column():
         solara.Title("KRS Review App")
 
+        # -------------------------------------------------------------------------------------------------------------
+        # Sidebar
         with solara.Sidebar():
             with solara.Card():
                 with solara.CardActions():
@@ -58,43 +61,58 @@ def Page(name: Optional[str] = '1970'):
                         on_file_open=set_file
                     )
 
-        # grid_layout_initial = [
-        #     {"h": 5, "i": "0", "moved": False, "w": 3, "x": 0, "y": 0},
-        #     {"h": 5, "i": "1", "moved": False, "w": 5, "x": 3, "y": 0},
-        #     {"h": 11, "i": "2", "moved": False, "w": 4, "x": 8, "y": 0},
-        #     {"h": 12, "i": "3", "moved": False, "w": 5, "x": 0, "y": 5},
-        #     {"h": 6, "i": "4", "moved": False, "w": 3, "x": 5, "y": 5},
-        #     {"h": 6, "i": "5", "moved": False, "w": 7, "x": 5, "y": 11},
-        # ]
-        # colors = "green red orange brown yellow pink".split()
+        # -------------------------------------------------------------------------------------------------------------
+        # Main content
+        grid_layout_initial = [
+            {"h": 1, "i": "0", "moved": False, "w": 6, "x": 0, "y": 0},
+            {"h": 1, "i": "1", "moved": False, "w": 6, "x": 6, "y": 0},
+        ]
+        grid_layout, set_grid_layout = solara.use_state(grid_layout_initial)
+        with solara.VBox() as main:
+            resizable = solara.ui_checkbox("Allow resizing", value=True)
+            draggable = solara.ui_checkbox("Allow dragging", value=True)
 
-        # # we need to store the state of the grid_layout ourselves, otherwise it will 'reset'
-        # # each time we change resizable or draggable
-        # grid_layout, set_grid_layout = solara.use_state(grid_layout_initial)
-        # items = [ColorCard(title=f"Child {i}", color=colors[i]) for i in range(len(grid_layout))]
-        # with solara.VBox() as main:
-        #     resizable = solara.ui_checkbox("Allow resizing", value=True)
-        #     draggable = solara.ui_checkbox("Allow dragging", value=True)
+            def reset_layout():
+                set_grid_layout(grid_layout_initial)
 
-        #     def reset_layout():
-        #         set_grid_layout(grid_layout_initial)
-
-        #     solara.Button("Reset to initial layout", on_click=reset_layout)
-        #     solara.GridDraggable(items=items, grid_layout=grid_layout, resizable=resizable, draggable=draggable, on_grid_layout=set_grid_layout)
-
-        
-        gutters = solara.reactive(True)
-        gutters_dense = solara.reactive(True)
-        with solara.ColumnsResponsive([1, 1], gutters=gutters.value, gutters_dense=gutters_dense.value) as main:
+            
             csv_file = csv_files[0]
             page_num = csv_file.stem.split('-')[-2]
-            
-            with solara.Card(name, margin=0):
-                with solara.lab.Tabs():
+
+            with solara.Card(margin=0) as card1:
+                 with solara.lab.Tabs():
                     with solara.lab.Tab("PDF"):
                         pdf_viewer(f"{name}.pdf", int(page_num))
                     with solara.lab.Tab("PNG"):
                         solara.Image(f"/static/public/png/page-{page_num}.png")
 
-            with solara.Card(title=f"Page: {page_num}"):
+            with solara.Card(margin=0) as card2:
                 datagrid(csv_file)
+
+            items = [card1, card2]
+
+            solara.Button("Reset to initial layout", on_click=reset_layout)
+            solara.GridDraggable(
+                items=items, 
+                grid_layout=grid_layout, 
+                resizable=resizable, 
+                draggable=draggable, 
+                on_grid_layout=set_grid_layout
+            )
+
+        
+        # gutters = solara.reactive(True)
+        # gutters_dense = solara.reactive(True)
+        # with solara.ColumnsResponsive([1, 1], gutters=gutters.value, gutters_dense=gutters_dense.value) as main:
+        #     csv_file = csv_files[0]
+        #     page_num = csv_file.stem.split('-')[-2]
+            
+        #     with solara.Card(name, margin=0):
+        #         with solara.lab.Tabs():
+        #             with solara.lab.Tab("PDF"):
+        #                 pdf_viewer(f"{name}.pdf", int(page_num))
+        #             with solara.lab.Tab("PNG"):
+        #                 solara.Image(f"/static/public/png/page-{page_num}.png")
+
+        #     with solara.Card(title=f"Page: {page_num}"):
+        #         datagrid(csv_file)
