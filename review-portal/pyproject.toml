@@ -31,8 +31,12 @@ include-package-data = true
 namespaces = true
 where = ["review_portal"]
 
-# [tool.setuptools.package-data]
-# "review_portal.public.data" = ["*.json", "*.csv", "*.txt", "*.pdf"]
+[tool.setuptools.package-data]
+"*" = ["*.pdf"]
+"review_portal.public.pdf" = ["*.pdf"]
+"review_portal.public.csv" = ["*.csv"]
+"review_portal.public.json" = ["*.json"]
+"review_portal.public.png" = ["*.png"]
 
 [tool.hatch.version]
 path = "review_portal/__init__.py"

@@ -65,9 +65,9 @@ def Page(name: Optional[str] = '1970'):
         # Main content
         grid_layout_initial = [
             {"h": 1, "i": "0", "moved": False, "w": 6, "x": 0, "y": 0},
-            {"h": 1, "i": "1", "moved": False, "w": 6, "x": 6, "y": 0},
+            {"h": 5, "i": "1", "moved": False, "w": 6, "x": 6, "y": 0},
             {"h": 1, "i": "2", "moved": False, "w": 6, "x": 0, "y": 1},
-            {"h": 1, "i": "3", "moved": False, "w": 6, "x": 6, "y": 1},
+            {"h": 1, "i": "3", "moved": False, "w": 6, "x": 6, "y": 5},
         ]
         grid_layout, set_grid_layout = solara.use_state(grid_layout_initial)
         with solara.VBox() as main:
