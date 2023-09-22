@@ -1,0 +1,63 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ocr-tools"
+license = {file = "LICENSE"}
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dynamic = ["version", "description"]
+dependencies = [
+    "typer[all]",
+    "pyyaml", 
+    "pandas",
+    "matplotlib",
+    "tqdm",
+    "Pillow",
+    "PyMuPDF",
+    "pymupdf-fonts",
+    "pytesseract",
+    "ocrmypdf",
+    "pdf2image",
+    "img2pdf",
+    "opencv-python",
+    "deskew",
+    "amazon-textract-textractor",
+    "amazon-textract-helper",
+    "amazon-textract-caller",
+    "amazon-textract-geofinder",
+    "amazon-textract-response-parser",
+    "amazon-textract-prettyprinter",
+    "sentence-transformers",
+]
+
+[project.urls]
+Home = "https://github.com/rs-kellogg/ocr-tools"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+namespaces = true
+where = ["ocrtools"]
+
+[project.scripts]
+ocrtools = "ocrtools.cli:app"
+
+[tool.setuptools.package-data]
+"ocrtools.data" = ["*.yml"]
+
+[tool.hatch.version]
+path = "ocrtools/__init__.py"
+
+[tool.black]
+line-length = 160
+
+[tool.isort]
+profile = "black"
