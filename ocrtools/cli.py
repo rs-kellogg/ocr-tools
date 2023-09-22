@@ -11,7 +11,7 @@ from ocrtools import preprocess, pdftools
 # -----------------------------------------------------------------------------
 app = typer.Typer()
 app.add_typer(preprocess.cli.app, name="preprocess")
-app.add_typer(pdftools.cli.app, name="pdftools")
+app.add_typer(pdftools.cli.app, name="pdf")
 console = cons.Console(style="green on black")
 
 
