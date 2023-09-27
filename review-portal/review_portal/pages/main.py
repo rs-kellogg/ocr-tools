@@ -1,11 +1,14 @@
 from pathlib import Path
 from typing import Optional, cast
+import pandas as pd
+from ipydatagrid import DataGrid
 import solara
 import solara.lab
 from solara.alias import rv
 from review_portal.components.data import (
     datagrid, 
     pdf_viewer, 
+    png_viewer,
     text_input,
     ColorCard,
 )
@@ -14,6 +17,8 @@ from review_portal.components.data import (
 
 HERE = Path(__file__)
 
+
+reactive_path = solara.reactive(HERE)
 
 @solara.component
 def Page(name: Optional[str] = '1970'):
@@ -49,17 +54,23 @@ def Page(name: Optional[str] = '1970'):
             with solara.Card("Select File"):
                 with solara.Column():
                     directory, set_directory = solara.use_state(CSV_DIR)
-                    file, set_file = solara.use_state(cast(Optional[Path], None))
-                    path, set_path = solara.use_state(cast(Optional[Path], None))
+                    file, set_file = solara.use_state(cast(Optional[Path], csv_files[0]))
+                    path, set_path = solara.use_state(cast(Optional[Path], csv_files[0].parent))
+                    def my_set_file(file):
+                        print(f"setting file: {file}")
+                        set_file(file)
+                        reactive_path.set(file)
                     def reset_path():
                         set_path(None)
                         set_file(None)
-                    solara.FileBrowser(
+                    fb = solara.FileBrowser(
                         directory, 
                         on_directory_change=set_directory, 
                         on_path_select=set_path, 
-                        on_file_open=set_file
+                        on_file_open=my_set_file
                     )
+                    fb.on
+                    fb
 
         # -------------------------------------------------------------------------------------------------------------
         # Main content
@@ -78,16 +89,21 @@ def Page(name: Optional[str] = '1970'):
             page_num = csv_file.stem.split('-')[-2]
 
             card1 = solara.Card(title=f"{name}.pdf", margin=0)
-            card2 = solara.Card(title=f"{csv_file.name}", margin=0)
+            with solara.Card(title=f"{csv_file.name}", margin=0) as card2:
+                if file:
+                    solara.Info(f"{file.name}")
+                else:
+                    solara.Info("No file selected")
             with solara.Card(margin=0) as card3:
                  with solara.lab.Tabs():
-                    with solara.lab.Tab("PDF"):
-                        pdf_viewer(f"{name}.pdf", int(page_num))
                     with solara.lab.Tab("PNG"):
-                        solara.Image(f"/static/public/png/page-{page_num}.png")
+                        png_viewer(f"{name}.pdf", file)
+                    with solara.lab.Tab("PDF"):
+                        pdf_viewer(f"{name}.pdf", file)
 
             with solara.Card(margin=0) as card4:
-                datagrid(csv_file)
+                if file:
+                    datagrid(file)
 
             items = [card1, card2, card3, card4]
 
@@ -99,9 +115,7 @@ def Page(name: Optional[str] = '1970'):
                 draggable=False, 
                 on_grid_layout=set_grid_layout
             )
-
-        main
-        
+                
         # gutters = solara.reactive(True)
         # gutters_dense = solara.reactive(True)
         # with solara.ColumnsResponsive([1, 1], gutters=gutters.value, gutters_dense=gutters_dense.value) as main:

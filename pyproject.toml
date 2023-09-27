@@ -40,6 +40,19 @@ dependencies = [
 [project.urls]
 Home = "https://github.com/rs-kellogg/ocr-tools"
 
+[project.optional-dependencies]
+test = [
+  "pytest",
+]
+lint = [
+  "black",
+  "flake8"
+]
+notebook = [
+    "jupyterlab",
+    "jupyterlab-tabular-data-editor",
+]
+
 [tool.setuptools]
 include-package-data = true
 

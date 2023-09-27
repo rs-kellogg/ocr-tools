@@ -25,25 +25,19 @@ def cell_observer_factory(grid):
     return cell_changed
 
 def background_color(cell):
-    if test(r"^0$", cell.value):
+    if test(r"^[A-Z].*", cell.value):
         return "lightgreen"
-    elif test(r"(Total|Difference)", cell.value):
-        return "yellow"
     elif test(r"\$", cell.value):
         return "pink"
     elif test(r".{40,}", cell.value):
         return "pink"
-    elif cell.value == '[MISSING_VALUE]':
-        return "pink"
-    elif test(r"^$", cell.value):
-        return "pink"
     else:
-        return "white"
+        return "pink"
 
 
 
 @solara.component
-def datagrid(path):
+def datagrid(file: Path):
     company_renderer = TextRenderer(
         text_color="black", 
         background_color=Expr(background_color),
@@ -55,24 +49,29 @@ def datagrid(path):
         format=","
     )
 
-    renderers={'amount': amount_renderer, 'company': company_renderer}
-    col_widths = {"company": 300}
+    # renderers={'amount': amount_renderer, 'company': company_renderer}
+    # col_widths = {"company": 300}
 
-    df = pd.read_csv(path)
+    df = pd.read_csv(file)
     df = df.drop(columns=['Unnamed: 0'])
-    dg = DataGrid.element(
-        dataframe=df,
-        editable=True,
-        layout={"height": f"1000px", "overflow_y": "auto"},
-        base_row_size=30,
-        base_column_size=120,
-        renderers=renderers,
-        column_widths=col_widths,
-    )
+    with solara.VBox() as main:
+        solara.DataFrame(df)
+        DataGrid.element(
+            dataframe=df,
+            editable=True,
+            layout={"height": f"1000px", "overflow_y": "auto"},
+            base_row_size=30,
+            base_column_size=120,
+            # default_renderer=company_renderer,
+            # renderers=renderers,
+            # column_widths=col_widths,
+        )
+    return main
 
 
 @solara.component
-def pdf_viewer(name: str, page_number: int):
+def pdf_viewer(name: str, file: Path):
+    page_number = int(file.name.split('-')[-2])
     html = f"""
     <iframe
         title="Source Document"
@@ -83,6 +82,13 @@ def pdf_viewer(name: str, page_number: int):
     ></iframe>"
     """
     solara.display(HTML(html))
+
+
+@solara.component
+def png_viewer(name: str, file: Path):
+    page_number = file.name.split('-')[-2]
+    print(f"png_viewer: {file.name}: {page_number}")
+    solara.Image(f"/static/public/png/page-{page_number}.png")
 
 
 text = solara.reactive("")
