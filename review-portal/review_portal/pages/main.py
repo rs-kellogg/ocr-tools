@@ -85,11 +85,10 @@ def Page(name: Optional[str] = '1970'):
             def reset_layout():
                 set_grid_layout(grid_layout_initial)
 
-            csv_file = csv_files[0]
-            page_num = csv_file.stem.split('-')[-2]
+            with solara.Card(margin=0) as card1:
+                solara.Info(f"{name}")
 
-            card1 = solara.Card(title=f"{name}.pdf", margin=0)
-            with solara.Card(title=f"{csv_file.name}", margin=0) as card2:
+            with solara.Card(margin=0) as card2:
                 if file:
                     solara.Info(f"{file.name}")
                 else:
@@ -105,29 +104,11 @@ def Page(name: Optional[str] = '1970'):
                 if file:
                     datagrid(file)
 
-            items = [card1, card2, card3, card4]
-
             solara.Button("Reset to initial layout", on_click=reset_layout)
             solara.GridDraggable(
-                items=items, 
+                items=[card1, card2, card3, card4], 
                 grid_layout=grid_layout, 
                 resizable=True, 
                 draggable=False, 
                 on_grid_layout=set_grid_layout
             )
-                
-        # gutters = solara.reactive(True)
-        # gutters_dense = solara.reactive(True)
-        # with solara.ColumnsResponsive([1, 1], gutters=gutters.value, gutters_dense=gutters_dense.value) as main:
-        #     csv_file = csv_files[0]
-        #     page_num = csv_file.stem.split('-')[-2]
-            
-        #     with solara.Card(name, margin=0):
-        #         with solara.lab.Tabs():
-        #             with solara.lab.Tab("PDF"):
-        #                 pdf_viewer(f"{name}.pdf", int(page_num))
-        #             with solara.lab.Tab("PNG"):
-        #                 solara.Image(f"/static/public/png/page-{page_num}.png")
-
-        #     with solara.Card(title=f"Page: {page_num}"):
-        #         datagrid(csv_file)
