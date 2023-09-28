@@ -107,7 +107,6 @@ def Page(name: Optional[str] = '1970'):
                         pdf_viewer(f"{name}.pdf", file)
 
             with solara.Card(margin=0) as card4:
-                file = csv_files[current_file_index.value]
                 if file and load_file:
                     solara.Info(f"load_file: {load_file}")
                     set_load_file(False)
