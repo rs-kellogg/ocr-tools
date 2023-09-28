@@ -30,7 +30,7 @@ def Page(name: Optional[str] = '1970'):
     png_files.sort()
 
     with solara.Column():
-        solara.Title("KRS Review App")
+        solara.Title("Table Review App")
 
         # -------------------------------------------------------------------------------------------------------------
         # Sidebar
@@ -55,7 +55,6 @@ def Page(name: Optional[str] = '1970'):
                     load_file, set_load_file = solara.use_state(False)
                     
                     def my_set_file(file):
-                        print(f"setting file: {file}")
                         set_file(file)
                         set_load_file(True)
 
@@ -106,8 +105,7 @@ def Page(name: Optional[str] = '1970'):
                         set_load_file(False)
                     else:
                         datagrid(file)
-                        # set_load_file(False)
-                        # solara.Info(f"load_file: {load_file}")
+                        
 
             solara.Button("Reset to initial layout", on_click=reset_layout)
             solara.GridDraggable(
