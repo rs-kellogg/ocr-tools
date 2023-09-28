@@ -21,14 +21,18 @@ PDF_DIR = DATA_DIR/"pdf"
 CSV_DIR = DATA_DIR/"csv"
 PNG_DIR = DATA_DIR/"png"
 
+pdf_file = PDF_DIR/f"{name}.pdf"
+csv_files = list(CSV_DIR.glob("*.csv"))
+csv_files.sort()
+png_files = list(PNG_DIR.glob("*.png"))
+png_files.sort()
+
+current_file = solara.reactive(csv_files[0])
+
 
 @solara.component
 def Page(name: Optional[str] = '1970'):
-    pdf_file = PDF_DIR/f"{name}.pdf"
-    csv_files = list(CSV_DIR.glob("*.csv"))
-    csv_files.sort()
-    png_files = list(PNG_DIR.glob("*.png"))
-    png_files.sort()
+
 
     with solara.Column():
         solara.Title("Table Review App")
