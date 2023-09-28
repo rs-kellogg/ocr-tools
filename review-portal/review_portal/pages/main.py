@@ -36,10 +36,14 @@ def Page(name: Optional[str] = '1970'):
         # -------------------------------------------------------------------------------------------------------------
         # Sidebar
         with solara.Sidebar():
-            with solara.Card(title="Notes"):
-                text_input()
+            def on_left_click():
+                print(file)
+
+            def on_right_click():
+                print(file)
 
             with solara.Card("Select File"):
+
                 with solara.Column():
                     directory, set_directory = solara.use_state(CSV_DIR)
                     file, set_file = solara.use_state(csv_files[0])
@@ -66,7 +70,7 @@ def Page(name: Optional[str] = '1970'):
         # Main content
         grid_layout_initial = [
             {"h": 2, "i": "0", "moved": False, "w": 6, "x": 0, "y": 0},
-            {"h": 2, "i": "1", "moved": False, "w": 6, "x": 6, "y": 0},
+            {"h": 5, "i": "1", "moved": False, "w": 6, "x": 6, "y": 0},
             {"h": 1, "i": "2", "moved": False, "w": 6, "x": 0, "y": 2},
             {"h": 1, "i": "3", "moved": False, "w": 6, "x": 6, "y": 5},
         ]
@@ -79,12 +83,13 @@ def Page(name: Optional[str] = '1970'):
 
             with solara.Card(title="", margin=0) as card2:
                 with solara.CardActions():
-                    solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-left-bold-box")
-                    solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-right-bold-box")
+                    solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-left-bold-box", on_click=on_left_click)
+                    solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-right-bold-box", on_click=on_right_click)
                     solara.Button("", outlined=True, color="primary", icon_name="save", disabled=True)
                     solara.Button("", outlined=True, color="primary", icon_name="refresh")
                     solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up")
                     solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down")
+                text_input()
 
             with solara.Card(margin=0) as card3:
                  with solara.lab.Tabs():
