@@ -21,18 +21,16 @@ PDF_DIR = DATA_DIR/"pdf"
 CSV_DIR = DATA_DIR/"csv"
 PNG_DIR = DATA_DIR/"png"
 
-pdf_file = PDF_DIR/f"{name}.pdf"
-csv_files = list(CSV_DIR.glob("*.csv"))
-csv_files.sort()
-png_files = list(PNG_DIR.glob("*.png"))
-png_files.sort()
-
-current_file = solara.reactive(csv_files[0])
+current_file_index = solara.reactive(0)
 
 
 @solara.component
 def Page(name: Optional[str] = '1970'):
-
+    pdf_file = PDF_DIR/f"{name}.pdf"
+    csv_files = list(CSV_DIR.glob("*.csv"))
+    csv_files.sort()
+    png_files = list(PNG_DIR.glob("*.png"))
+    png_files.sort()
 
     with solara.Column():
         solara.Title("Table Review App")
@@ -41,10 +39,16 @@ def Page(name: Optional[str] = '1970'):
         # Sidebar
         with solara.Sidebar():
             def on_left_click():
-                print(file)
+                current_file_index.value = max(current_file_index.value - 1, 0)
+                file = csv_files[current_file_index.value]
+                set_file(file)
+                set_load_file(True)
 
             def on_right_click():
-                print(file)
+                current_file_index.value = min(current_file_index.value + 1, len(csv_files) - 1)
+                file = csv_files[current_file_index.value]
+                set_file(file)
+                set_load_file(True)
 
             with solara.Card("Select File"):
 
@@ -103,6 +107,7 @@ def Page(name: Optional[str] = '1970'):
                         pdf_viewer(f"{name}.pdf", file)
 
             with solara.Card(margin=0) as card4:
+                file = csv_files[current_file_index.value]
                 if file and load_file:
                     solara.Info(f"load_file: {load_file}")
                     set_load_file(False)
