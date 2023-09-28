@@ -80,6 +80,7 @@ def text_input():
     solara.InputText("Enter some text", value=text, continuous_update=continuous_update.value)
     with solara.Row():
         solara.Button("Clear", on_click=lambda: text.set(""))
+        solara.Button("Save", on_click=lambda: text.set(""))
 
 
 @solara.component
