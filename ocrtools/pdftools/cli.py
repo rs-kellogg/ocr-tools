@@ -23,7 +23,7 @@ def extract_pages(
     console.print(f"extracting pages from: {pdf_file}")
     outdir.mkdir(parents=True, exist_ok=True)
     F.extract_pages(pdf_file, outdir, start, end)
-    
+
 
 # -----------------------------------------------------------------------------
 @app.command()
@@ -42,14 +42,14 @@ def ocr_pages(
         console.print(f"Saving OCR results for page: {img_file}")
         doc = doc_map[img_file]
         doc.text
-        json_path = outdir/f"json/{img_file.stem}.json"
+        json_path = outdir / f"json/{img_file.stem}.json"
         json_path.parent.mkdir(parents=True, exist_ok=True)
         with open(json_path, "w") as f:
             json.dump(doc.document.response, f)
-        png_path = outdir/f"png/{img_file.stem}.png"
+        png_path = outdir / f"png/{img_file.stem}.png"
         png_path.parent.mkdir(parents=True, exist_ok=True)
         doc.document.visualize().save(png_path)
- 
+
 
 @app.command()
 def extract_tables(

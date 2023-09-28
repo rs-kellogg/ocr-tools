@@ -20,10 +20,10 @@ def ocr_page(img_file: Path, aws_profile: str = "default") -> Document:
 
 
 def ocr_page_async(
-        img_file: Path, 
-        aws_profile: str = "default",
-        s3_bucket: str = "s3://kellogg-ocr/temp",
-    ) -> LazyDocument:
+    img_file: Path,
+    aws_profile: str = "default",
+    s3_bucket: str = "s3://kellogg-ocr/temp",
+) -> LazyDocument:
     extractor = Textractor(profile_name=aws_profile)
     doc = extractor.start_document_analysis(
         file_source=Image.open(str(img_file)),
@@ -44,7 +44,7 @@ def extract_tables(json_path: Path, outdir: Path):
         doc = Document.open(f)
         print(f"Found {len(doc.tables)} tables in {json_path.name}")
         for i, table in enumerate(doc.tables):
-            csv_file = outdir/f"{json_path.stem}-{i+1}.csv"
+            csv_file = outdir / f"{json_path.stem}-{i+1}.csv"
             csv_file.parent.mkdir(parents=True, exist_ok=True)
             csv_file.write_text(table.to_csv())
 
@@ -61,6 +61,6 @@ def extract_pages(pdf: Path, outdir: Path, page_start: int, page_end: int):
 
     mat = fitz.Matrix(3, 3)
     for i in range(page_start, page_end):
-        page = doc[i-1]
-        pix = page.get_pixmap(matrix = mat)
-        pix.save(outdir/f"page-{str(page.number+1).zfill(4)}.png")
+        page = doc[i - 1]
+        pix = page.get_pixmap(matrix=mat)
+        pix.save(outdir / f"page-{str(page.number+1).zfill(4)}.png")

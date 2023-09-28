@@ -1,5 +1,6 @@
 import solara
 
+
 @solara.component
 def Page():
     with solara.VBox() as main:

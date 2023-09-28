@@ -15,14 +15,16 @@ from ipydatagrid import Expr, DataGrid, TextRenderer, BarRenderer, VegaExpr
 
 def cell_observer_factory(grid):
     def cell_changed(e):
-        if e['row'] == (len(grid.data)-1) and e['column'] == 'amount':
+        if e["row"] == (len(grid.data) - 1) and e["column"] == "amount":
             return
-        amounts = grid.data['amount']
+        amounts = grid.data["amount"]
         summed_amount = amounts[1:-2].sum()
         given_total = amounts[-2:-1].sum()
         diff = given_total - summed_amount
-        grid.set_cell_value('amount', len(grid.data)-1, diff)
+        grid.set_cell_value("amount", len(grid.data) - 1, diff)
+
     return cell_changed
+
 
 def background_color(cell):
     if test(r"^[A-Z].*", cell.value):
@@ -38,8 +40,8 @@ def background_color(cell):
 @solara.component
 def datagrid(file: Path):
     df = pd.read_csv(file)
-    df = df.drop(columns=['Unnamed: 0'])
-    dg = DataGrid.element(
+    df = df.drop(columns=["Unnamed: 0"])
+    DataGrid.element(
         dataframe=df,
         editable=True,
         layout={"height": f"1000px", "overflow_y": "auto"},
@@ -50,7 +52,7 @@ def datagrid(file: Path):
 
 @solara.component
 def pdf_viewer(name: str, file: Path):
-    page_number = int(file.name.split('-')[-2])
+    page_number = int(file.name.split("-")[-2])
     html = f"""
     <iframe
         title="Source Document"
@@ -65,18 +67,19 @@ def pdf_viewer(name: str, file: Path):
 
 @solara.component
 def png_viewer(name: str, file: Path):
-    page_number = file.name.split('-')[-2]
+    page_number = file.name.split("-")[-2]
     solara.Image(f"/static/public/png/page-{page_number}.png")
 
 
 text = solara.reactive("")
 continuous_update = solara.reactive(True)
 
+
 @solara.component
 def text_input():
     solara.InputText("Enter some text", value=text, continuous_update=continuous_update.value)
     with solara.Row():
-        solara.Button("Clear", on_click=lambda: text.set(""))    
+        solara.Button("Clear", on_click=lambda: text.set(""))
 
 
 @solara.component
