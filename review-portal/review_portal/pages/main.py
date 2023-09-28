@@ -14,19 +14,15 @@ from review_portal.components.data import (
 )
 
 
-
 HERE = Path(__file__)
+DATA_DIR = HERE.parent/f"../public/"
+PDF_DIR = DATA_DIR/"pdf"
+CSV_DIR = DATA_DIR/"csv"
+PNG_DIR = DATA_DIR/"png"
 
-
-reactive_path = solara.reactive(HERE)
 
 @solara.component
 def Page(name: Optional[str] = '1970'):
-    DATA_DIR = HERE.parent/f"../public/"
-    PDF_DIR = DATA_DIR/"pdf"
-    CSV_DIR = DATA_DIR/"csv"
-    PNG_DIR = DATA_DIR/"png"
-    
     pdf_file = PDF_DIR/f"{name}.pdf"
     csv_files = list(CSV_DIR.glob("*.csv"))
     csv_files.sort()
@@ -54,23 +50,26 @@ def Page(name: Optional[str] = '1970'):
             with solara.Card("Select File"):
                 with solara.Column():
                     directory, set_directory = solara.use_state(CSV_DIR)
-                    file, set_file = solara.use_state(cast(Optional[Path], csv_files[0]))
-                    path, set_path = solara.use_state(cast(Optional[Path], csv_files[0].parent))
+                    file, set_file = solara.use_state(csv_files[0])
+                    path, set_path = solara.use_state(csv_files[0].parent)
+                    load_file, set_load_file = solara.use_state(False)
+                    
                     def my_set_file(file):
                         print(f"setting file: {file}")
                         set_file(file)
-                        reactive_path.set(file)
+                        set_load_file(True)
+
                     def reset_path():
                         set_path(None)
                         set_file(None)
-                    fb = solara.FileBrowser(
+
+                    solara.FileBrowser(
                         directory, 
                         on_directory_change=set_directory, 
                         on_path_select=set_path, 
-                        on_file_open=my_set_file
+                        on_file_open=my_set_file,
                     )
-                    fb.on
-                    fb
+                    
 
         # -------------------------------------------------------------------------------------------------------------
         # Main content
@@ -101,8 +100,14 @@ def Page(name: Optional[str] = '1970'):
                         pdf_viewer(f"{name}.pdf", file)
 
             with solara.Card(margin=0) as card4:
-                if file:
-                    datagrid(file)
+                with solara.VBox():
+                    if file and load_file:
+                        solara.Info(f"load_file: {load_file}")
+                        set_load_file(False)
+                    else:
+                        datagrid(file)
+                        # set_load_file(False)
+                        # solara.Info(f"load_file: {load_file}")
 
             solara.Button("Reset to initial layout", on_click=reset_layout)
             solara.GridDraggable(

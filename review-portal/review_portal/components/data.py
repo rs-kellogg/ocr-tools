@@ -35,38 +35,17 @@ def background_color(cell):
         return "pink"
 
 
-
 @solara.component
 def datagrid(file: Path):
-    company_renderer = TextRenderer(
-        text_color="black", 
-        background_color=Expr(background_color),
-    )
-
-    amount_renderer = TextRenderer(
-        text_color="black", 
-        background_color=Expr(background_color),
-        format=","
-    )
-
-    # renderers={'amount': amount_renderer, 'company': company_renderer}
-    # col_widths = {"company": 300}
-
     df = pd.read_csv(file)
     df = df.drop(columns=['Unnamed: 0'])
-    with solara.VBox() as main:
-        solara.DataFrame(df)
-        DataGrid.element(
-            dataframe=df,
-            editable=True,
-            layout={"height": f"1000px", "overflow_y": "auto"},
-            base_row_size=30,
-            base_column_size=120,
-            # default_renderer=company_renderer,
-            # renderers=renderers,
-            # column_widths=col_widths,
-        )
-    return main
+    dg = DataGrid.element(
+        dataframe=df,
+        editable=True,
+        layout={"height": f"1000px", "overflow_y": "auto"},
+        base_row_size=30,
+        base_column_size=120,
+    )
 
 
 @solara.component
@@ -87,7 +66,6 @@ def pdf_viewer(name: str, file: Path):
 @solara.component
 def png_viewer(name: str, file: Path):
     page_number = file.name.split('-')[-2]
-    print(f"png_viewer: {file.name}: {page_number}")
     solara.Image(f"/static/public/png/page-{page_number}.png")
 
 
