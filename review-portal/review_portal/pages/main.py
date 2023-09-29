@@ -1,6 +1,6 @@
 import sqlite3
 from pathlib import Path
-from typing import Optional, cast
+from typing import Optional, cast, Dict, Any
 import pandas as pd
 from ipydatagrid import DataGrid
 import solara
@@ -8,6 +8,7 @@ import solara.lab
 from solara.alias import rv
 from review_portal.components.data import (
     datagrid, 
+    dataframe,
     pdf_viewer, 
     png_viewer,
     text_input,
@@ -51,18 +52,6 @@ def Page(name: Optional[str] = '1970'):
         # -------------------------------------------------------------------------------------------------------------
         # Sidebar
         with solara.Sidebar():
-            def on_left_click():
-                current_file_index.value = max(current_file_index.value - 1, 0)
-                file = csv_files[current_file_index.value]
-                set_file(file)
-                set_load_file(True)
-
-            def on_right_click():
-                current_file_index.value = min(current_file_index.value + 1, len(csv_files) - 1)
-                file = csv_files[current_file_index.value]
-                set_file(file)
-                set_load_file(True)
-
             with solara.Card("Select File"):
 
                 with solara.Column():
@@ -125,9 +114,12 @@ def Page(name: Optional[str] = '1970'):
                     solara.Info(f"load_file: {load_file}")
                     set_load_file(False)
                 else:
-                    # solara.Button("", outlined=True, color="primary", icon_name="mdi-sticker-plus-outline")
-                    # solara.Button("", outlined=True, color="primary", icon_name="mdi-sticker-minus-outline")
-                    dg = datagrid(file)
+                    with solara.lab.Tabs():
+                        with solara.lab.Tab("DataGrid"):
+                            datagrid(file)
+                        with solara.lab.Tab("DataFrame"):
+                            dataframe(file)
+
 
             solara.Button("Reset to initial layout", on_click=lambda: set_grid_layout(grid_layout_initial))
             solara.GridDraggable(

@@ -1,6 +1,6 @@
 from IPython.display import IFrame, Image, FileLink, HTML
 from pathlib import Path
-from typing import Optional, cast
+from typing import Optional, cast, Dict, Any
 import reacton.bqplot as bqp
 import solara
 import solara.lab
@@ -41,13 +41,30 @@ def background_color(cell):
 def datagrid(file: Path):        
     df = pd.read_csv(file)
     df = df.drop(columns=["Unnamed: 0"])
-    DataGrid.element(
+    grid = DataGrid.element(
         dataframe=df,
         editable=True,
         layout={"height": f"1000px", "overflow_y": "auto"},
         base_row_size=30,
         base_column_size=120,
     )
+
+@solara.component
+def dataframe(file: Path):    
+    column, set_column = solara.use_state(cast(Optional[str], None))
+    cell, set_cell = solara.use_state(cast(Dict[str, Any], {}))
+
+    def on_action_column(column):
+        set_column(column)
+
+    def on_action_cell(column, row_index):
+        set_cell(dict(column=column, row_index=row_index))
+
+    column_actions = [solara.ColumnAction(icon="mdi-sunglasses", name="User column action", on_click=on_action_column)]
+    cell_actions = [solara.CellAction(icon="mdi-white-balance-sunny", name="User cell action", on_click=on_action_cell)]
+    df = pd.read_csv(file)
+    df = df.drop(columns=["Unnamed: 0"])
+    solara.DataFrame(df, column_actions=column_actions, cell_actions=cell_actions)    
 
 
 @solara.component
