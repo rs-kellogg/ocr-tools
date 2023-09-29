@@ -40,7 +40,8 @@ def background_color(cell):
 @solara.component
 def datagrid(file: Path):        
     df = pd.read_csv(file)
-    df = df.drop(columns=["Unnamed: 0"])
+    # if "Unnamed: 0" in df.columns:
+    #     df = df.drop(columns=["Unnamed: 0"])
     grid = DataGrid.element(
         dataframe=df,
         editable=True,
