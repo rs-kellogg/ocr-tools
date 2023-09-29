@@ -32,6 +32,19 @@ def Page(name: Optional[str] = '1970'):
     png_files = list(PNG_DIR.glob("*.png"))
     png_files.sort()
 
+    def on_left_click():
+        current_file_index.value = max(current_file_index.value - 1, 0)
+        file = csv_files[current_file_index.value]
+        set_file(file)
+        set_load_file(True)
+
+    def on_right_click():
+        current_file_index.value = min(current_file_index.value + 1, len(csv_files) - 1)
+        file = csv_files[current_file_index.value]
+        set_file(file)
+        set_load_file(True)
+
+
     with solara.Column():
         solara.Title("Table Review App")
 
@@ -66,6 +79,8 @@ def Page(name: Optional[str] = '1970'):
                         set_path(None)
                         set_file(None)
 
+                    text_input()
+
                     solara.FileBrowser(
                         directory, 
                         on_directory_change=set_directory, 
@@ -97,7 +112,8 @@ def Page(name: Optional[str] = '1970'):
                     solara.Button("", outlined=True, color="primary", icon_name="refresh")
                     solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up")
                     solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down")
-                text_input()
+                    solara.Button("", outlined=True, color="primary", icon_name="mdi-sticker-plus-outline")
+                    solara.Button("", outlined=True, color="primary", icon_name="mdi-sticker-minus-outline")
 
             with solara.Card(margin=0) as card3:
                  with solara.lab.Tabs():
@@ -111,7 +127,7 @@ def Page(name: Optional[str] = '1970'):
                     solara.Info(f"load_file: {load_file}")
                     set_load_file(False)
                 else:
-                    datagrid(file) 
+                    datagrid(file)
 
             solara.Button("Reset to initial layout", on_click=lambda: set_grid_layout(grid_layout_initial))
             solara.GridDraggable(
