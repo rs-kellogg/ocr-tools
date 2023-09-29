@@ -23,7 +23,7 @@ def extract_pages(
     console.print(f"extracting pages from: {pdf_file}")
     outdir.mkdir(parents=True, exist_ok=True)
     F.extract_pages(pdf_file, outdir, start, end)
-
+    
 
 # -----------------------------------------------------------------------------
 @app.command()
@@ -33,23 +33,32 @@ def ocr_pages(
 ):
     console.print(f"OCR'ing pages from: {indir}")
     outdir.mkdir(parents=True, exist_ok=True)
-    doc_map = dict()
-    for img_file in indir.glob("*.png"):
-        console.print(f"OCR'ing page: {img_file}")
-        doc_map[img_file] = F.ocr_page_async(img_file)
 
-    for img_file in doc_map:
-        console.print(f"Saving OCR results for page: {img_file}")
-        doc = doc_map[img_file]
-        doc.text
-        json_path = outdir / f"json/{img_file.stem}.json"
-        json_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(json_path, "w") as f:
-            json.dump(doc.document.response, f)
-        png_path = outdir / f"png/{img_file.stem}.png"
-        png_path.parent.mkdir(parents=True, exist_ok=True)
-        doc.document.visualize().save(png_path)
+    batch_size = 10
+    img_files = sorted(indir.glob("*.png"))
 
+    for i in range(0, len(img_files), batch_size):
+        # Extract the current batch of files
+        batch_files = img_files[i:i + batch_size]
+        doc_map = dict()
+        
+        # Process the files in the current batch
+        for img_file in batch_files:
+            console.print(f"OCR'ing page: {img_file}")
+            doc_map[img_file] = F.ocr_page_async(img_file)
+
+        for img_file in doc_map:
+            console.print(f"Saving OCR results for page: {img_file}")
+            doc = doc_map[img_file]
+            doc.text
+            json_path = outdir / f"json/{img_file.stem}.json"
+            json_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(json_path, "w") as f:
+                json.dump(doc.document.response, f)
+            png_path = outdir / f"png/{img_file.stem}.png"
+            png_path.parent.mkdir(parents=True, exist_ok=True)
+            doc.document.visualize().save(png_path)
+ 
 
 @app.command()
 def extract_tables(
