@@ -112,8 +112,6 @@ def Page(name: Optional[str] = '1970'):
                     solara.Button("", outlined=True, color="primary", icon_name="refresh")
                     solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up")
                     solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down")
-                    solara.Button("", outlined=True, color="primary", icon_name="mdi-sticker-plus-outline")
-                    solara.Button("", outlined=True, color="primary", icon_name="mdi-sticker-minus-outline")
 
             with solara.Card(margin=0) as card3:
                  with solara.lab.Tabs():
