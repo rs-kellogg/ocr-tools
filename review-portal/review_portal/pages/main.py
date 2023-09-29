@@ -125,7 +125,9 @@ def Page(name: Optional[str] = '1970'):
                     solara.Info(f"load_file: {load_file}")
                     set_load_file(False)
                 else:
-                    datagrid(file)
+                    # solara.Button("", outlined=True, color="primary", icon_name="mdi-sticker-plus-outline")
+                    # solara.Button("", outlined=True, color="primary", icon_name="mdi-sticker-minus-outline")
+                    dg = datagrid(file)
 
             solara.Button("Reset to initial layout", on_click=lambda: set_grid_layout(grid_layout_initial))
             solara.GridDraggable(
