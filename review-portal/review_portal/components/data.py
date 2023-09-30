@@ -1,15 +1,11 @@
-from IPython.display import IFrame, Image, FileLink, HTML
 from pathlib import Path
 from typing import Optional, cast, Dict, Any, Callable
-import reacton.bqplot as bqp
+import pandas as pd
 import solara
 import solara.lab
 from solara.alias import rv
-import solara.website
-import ipywidgets as w
-from ipydatagrid import TextRenderer, DataGrid
+from IPython.display import IFrame, Image, FileLink, HTML, display
 from py2vega.functions.regexp import regexp, test
-import pandas as pd
 from ipydatagrid import Expr, DataGrid, TextRenderer, BarRenderer, VegaExpr
 
 
@@ -23,46 +19,39 @@ def background_color(cell):
     else:
         return "pink"
 
+
+def cell_observer_factory(grid, file, set_load_file):
+    def cell_changed(e):
+        print(e)
+        grid.data.iat[e['row'], e['column_index']] = e['value']
+        # grid.data.at[e['row'], e['column']] = e['value']
+        grid.data.to_csv(file, index=True)
+        set_load_file(True)
+    return cell_changed   
+
+
  
 @solara.component
-def datagrid(file: Path):
+def datagrid(file: Path, set_load_file: Callable):
     renderer = TextRenderer(
         text_color="black", background_color=Expr(background_color),
-    )     
-
-    def on_cell_changed(cell):
-        print(
-            "Cell at primary key {row} and column '{column}'({column_index}) changed to {value}".format(
-                row=cell["row"],
-                column=cell["column"],
-                column_index=cell["column_index"],
-                value=cell["value"],
-            )
-        )
-
-    def cell_observer_factory(grid):
-        print("calling cell_observer_factory")
-        def cell_changed(e):
-            grid.set_cell_value(e['column'], e['row'], "Hello!")
-
-        return cell_changed  
-
-    df = pd.read_csv(file)
-    grid = DataGrid.element(
+    )
+    df = pd.read_csv(file, index_col=0)
+    grid = DataGrid(
         dataframe=df,
         editable=True,
         layout={"height": f"1000px", "overflow_y": "auto"},
         base_row_size=30,
         base_column_size=120,
         default_renderer=renderer,
-        cell_observer_factory=cell_observer_factory,
-        on_cell_change=on_cell_changed,
     )
+    grid.on_cell_change(cell_observer_factory(grid, file, set_load_file))
+    display(grid)
 
 
 @solara.component
 def dataframe(file: Path, set_load_file: Callable):
-    df = pd.read_csv(file)
+    df = pd.read_csv(file, index_col=0)
 
     column, set_column = solara.use_state(cast(Optional[str], None))
     cell, set_cell = solara.use_state(cast(Dict[str, Any], {}))
@@ -71,21 +60,21 @@ def dataframe(file: Path, set_load_file: Callable):
         set_column(column)
         idx = df.columns.get_loc(column)
         df.insert(idx, "new", [""] * len(df), allow_duplicates=True)
-        df.to_csv(file, index=False)
+        df.to_csv(file, index=True)
         set_load_file(True)
 
     def insert_right_column(column):
         set_column(column)
         idx = df.columns.get_loc(column)
         df.insert(idx + 1, "new", [""] * len(df), allow_duplicates=True)
-        df.to_csv(file, index=False)
+        df.to_csv(file, index=True)
         set_load_file(True)
 
     def delete_column(column):
         set_column(column)
         idx = df.columns.get_loc(column)
         df.drop(columns=[column], inplace=True)
-        df.to_csv(file, index=False)
+        df.to_csv(file, index=True)
         set_load_file(True)
 
     def insert_before_row(column, row_index):
@@ -99,7 +88,7 @@ def dataframe(file: Path, set_load_file: Callable):
             index=[index[-1] + 1],
         )
         df2 = pd.concat([iloc1, additional_row, iloc2]).reset_index(drop=True)
-        df2.to_csv(file, index=False)
+        df2.to_csv(file, index=True)
         set_load_file(True)
 
     def insert_after_row(column, row_index):
@@ -113,13 +102,13 @@ def dataframe(file: Path, set_load_file: Callable):
             index=[index[-1] + 1],
         )
         df2 = pd.concat([iloc1, additional_row, iloc2]).reset_index(drop=True)
-        df2.to_csv(file, index=False)
+        df2.to_csv(file, index=True)
         set_load_file(True)
 
     def delete_row(column, row_index):
         set_cell(dict(column=column, row_index=row_index))
         df2 = df.drop(index=[row_index])
-        df2.to_csv(file, index=False)
+        df2.to_csv(file, index=True)
         set_load_file(True)
 
     column_actions = [

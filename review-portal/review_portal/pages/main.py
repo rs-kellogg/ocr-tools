@@ -27,26 +27,6 @@ PNG_DIR = DATA_DIR / "png"
 
 current_file_index = solara.reactive(0)
 
-def background_color(cell):
-    if test(r"^[A-Z].*", cell.value):
-        return "lightgreen"
-    elif test(r"\$", cell.value):
-        return "pink"
-    elif test(r".{40,}", cell.value):
-        return "pink"
-    else:
-        return "pink"
-
-
-def cell_observer_factory(grid, file, set_load_file):
-    def cell_changed(e):
-        print(e)
-        grid.data.iat[e['row'], e['column_index']] = e['value']
-        # grid.data.at[e['row'], e['column']] = e['value']
-        grid.data.to_csv(file, index=True)
-        set_load_file(True)
-    return cell_changed   
-
 
 @solara.component
 def Page(name: Optional[str] = "1970"):
@@ -140,21 +120,7 @@ def Page(name: Optional[str] = "1970"):
                 else:
                     with solara.lab.Tabs():
                         with solara.lab.Tab("Edit Cells"):
-                            # datagrid(file)
-                            renderer = TextRenderer(
-                                text_color="black", background_color=Expr(background_color),
-                            )
-                            df = pd.read_csv(file, index_col=0)
-                            grid = DataGrid(
-                                dataframe=df,
-                                editable=True,
-                                layout={"height": f"1000px", "overflow_y": "auto"},
-                                base_row_size=30,
-                                base_column_size=120,
-                                default_renderer=renderer,
-                            )
-                            grid.on_cell_change(cell_observer_factory(grid, file, set_load_file))
-                            display(grid)
+                            datagrid(file, set_load_file)
                         with solara.lab.Tab("Add/Remove"):
                             dataframe(file, set_load_file)
 
