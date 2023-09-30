@@ -19,6 +19,7 @@ dependencies = [
     "PyMUPDF",
     "ipydatagrid",
     "bqplot",
+    "GitPython",
 ]
 
 [project.urls]

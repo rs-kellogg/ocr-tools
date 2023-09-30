@@ -1,6 +1,7 @@
 import sqlite3
 from pathlib import Path
 from typing import Optional, cast, Dict, Any
+import git
 import pandas as pd
 from ipydatagrid import DataGrid
 import solara
@@ -85,6 +86,11 @@ def Page(name: Optional[str] = "1970"):
         ]
         grid_layout, set_grid_layout = solara.use_state(grid_layout_initial)
 
+        def on_restore():
+            repo = git.Repo(file.parent)
+            repo.git.checkout([file.name])
+            set_load_file(True)
+
         with solara.VBox() as main:
             with solara.Card(margin=0) as card1:
                 solara.Info(f"{pdf_file.name} - {file.name}")
@@ -94,7 +100,7 @@ def Page(name: Optional[str] = "1970"):
                     solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-left-bold-box", on_click=on_left_click)
                     solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-right-bold-box", on_click=on_right_click)
                     # solara.Button("", outlined=True, color="primary", icon_name="save", disabled=True)
-                    solara.Button("", outlined=True, color="primary", icon_name="refresh")
+                    solara.Button("", outlined=True, color="primary", icon_name="refresh", on_click=on_restore)
                     solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up")
                     solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down")
 
