@@ -79,27 +79,25 @@ def dataframe(file: Path, set_load_file: Callable):
 
     def insert_before_row(column, row_index):
         set_cell(dict(column=column, row_index=row_index))
-        columns = df.columns
-        index = df.index
-        iloc1 = df.iloc[: row_index - 1]
-        iloc2 = df.iloc[row_index:]
-        additional_row = pd.DataFrame(
-            columns=columns,
-            index=[index[-1] + 1],
-        )
-        df2 = pd.concat([iloc1, additional_row, iloc2]).reset_index(drop=True)
+        parts = []
+        if row_index > 0:
+            parts.append(df.iloc[: row_index - 1])
+        parts.append(pd.DataFrame(
+            columns=df.columns,
+            index=[df.index[-1] + 1],
+        ))
+        parts.append(df.iloc[row_index:])
+        df2 = pd.concat(parts).reset_index(drop=True)
         df2.to_csv(file, index=True)
         set_load_file(True)
 
     def insert_after_row(column, row_index):
         set_cell(dict(column=column, row_index=row_index))
-        columns = df.columns
-        index = df.index
         iloc1 = df.iloc[: row_index + 1]
         iloc2 = df.iloc[row_index + 1 :]
         additional_row = pd.DataFrame(
-            columns=columns,
-            index=[index[-1] + 1],
+            columns=df.columns,
+            index=[df.index[-1] + 1],
         )
         df2 = pd.concat([iloc1, additional_row, iloc2]).reset_index(drop=True)
         df2.to_csv(file, index=True)
