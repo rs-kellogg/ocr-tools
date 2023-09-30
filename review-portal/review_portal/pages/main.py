@@ -118,7 +118,6 @@ def Page(name: Optional[str] = '1970'):
                         with solara.lab.Tab("Edit Cells"):
                             datagrid(file)
                         with solara.lab.Tab("Add/Remove"):
-                            # dataframe(file)
                             df = pd.read_csv(file)
 
                             column, set_column = solara.use_state(cast(Optional[str], None))
@@ -183,6 +182,9 @@ def Page(name: Optional[str] = '1970'):
                                                     
                             def delete_row(column, row_index):
                                 set_cell(dict(column=column, row_index=row_index))
+                                df2 = df.drop(index=[row_index])
+                                df2.to_csv(file, index=False)
+                                set_load_file(True)
 
                             column_actions = [
                                 solara.ColumnAction(icon="mdi-table-column-plus-before", name="", on_click=insert_left_column),

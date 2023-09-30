@@ -52,20 +52,7 @@ def datagrid(file: Path):
 
 @solara.component
 def dataframe(file: Path):    
-    column, set_column = solara.use_state(cast(Optional[str], None))
-    cell, set_cell = solara.use_state(cast(Dict[str, Any], {}))
-
-    def on_action_column(column):
-        set_column(column)
-
-    def on_action_cell(column, row_index):
-        set_cell(dict(column=column, row_index=row_index))
-
-    column_actions = [solara.ColumnAction(icon="mdi-sunglasses", name="User column action", on_click=on_action_column)]
-    cell_actions = [solara.CellAction(icon="mdi-white-balance-sunny", name="User cell action", on_click=on_action_cell)]
-    df = pd.read_csv(file)
-    df = df.drop(columns=["Unnamed: 0"])
-    solara.DataFrame(df, column_actions=column_actions, cell_actions=cell_actions)    
+    pass   
 
 
 @solara.component
