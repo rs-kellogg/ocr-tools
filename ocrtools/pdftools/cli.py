@@ -23,7 +23,7 @@ def extract_pages(
     console.print(f"extracting pages from: {pdf_file}")
     outdir.mkdir(parents=True, exist_ok=True)
     F.extract_pages(pdf_file, outdir, start, end)
-    
+
 
 # -----------------------------------------------------------------------------
 @app.command()
@@ -39,9 +39,9 @@ def ocr_pages(
 
     for i in range(0, len(img_files), batch_size):
         # Extract the current batch of files
-        batch_files = img_files[i:i + batch_size]
+        batch_files = img_files[i : i + batch_size]
         doc_map = dict()
-        
+
         # Process the files in the current batch
         for img_file in batch_files:
             console.print(f"OCR'ing page: {img_file}")
@@ -58,7 +58,7 @@ def ocr_pages(
             png_path = outdir / f"png/{img_file.stem}.png"
             png_path.parent.mkdir(parents=True, exist_ok=True)
             doc.document.visualize().save(png_path)
- 
+
 
 @app.command()
 def extract_tables(

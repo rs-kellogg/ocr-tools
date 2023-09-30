@@ -38,7 +38,7 @@ def background_color(cell):
 
 
 @solara.component
-def datagrid(file: Path):        
+def datagrid(file: Path):
     df = pd.read_csv(file)
     # if "Unnamed: 0" in df.columns:
     #     df = df.drop(columns=["Unnamed: 0"])
@@ -50,8 +50,9 @@ def datagrid(file: Path):
         base_column_size=120,
     )
 
+
 @solara.component
-def dataframe(file: Path, set_load_file: Callable):    
+def dataframe(file: Path, set_load_file: Callable):
     df = pd.read_csv(file)
 
     column, set_column = solara.use_state(cast(Optional[str], None))
@@ -60,14 +61,14 @@ def dataframe(file: Path, set_load_file: Callable):
     def insert_left_column(column):
         set_column(column)
         idx = df.columns.get_loc(column)
-        df.insert(idx, "new", [""]*len(df), allow_duplicates=True)
+        df.insert(idx, "new", [""] * len(df), allow_duplicates=True)
         df.to_csv(file, index=False)
         set_load_file(True)
 
     def insert_right_column(column):
         set_column(column)
         idx = df.columns.get_loc(column)
-        df.insert(idx+1, "new", [""]*len(df), allow_duplicates=True)
+        df.insert(idx + 1, "new", [""] * len(df), allow_duplicates=True)
         df.to_csv(file, index=False)
         set_load_file(True)
 
@@ -82,38 +83,30 @@ def dataframe(file: Path, set_load_file: Callable):
         set_cell(dict(column=column, row_index=row_index))
         columns = df.columns
         index = df.index
-        iloc1 = df.iloc[:row_index-1]
+        iloc1 = df.iloc[: row_index - 1]
         iloc2 = df.iloc[row_index:]
         additional_row = pd.DataFrame(
-            columns = columns, 
-            index = [index[-1] + 1],
+            columns=columns,
+            index=[index[-1] + 1],
         )
-        df2 = pd.concat([
-            iloc1, 
-            additional_row, 
-            iloc2
-        ]).reset_index(drop=True)
+        df2 = pd.concat([iloc1, additional_row, iloc2]).reset_index(drop=True)
         df2.to_csv(file, index=False)
         set_load_file(True)
-        
+
     def insert_after_row(column, row_index):
         set_cell(dict(column=column, row_index=row_index))
         columns = df.columns
         index = df.index
-        iloc1 = df.iloc[:row_index+1]
-        iloc2 = df.iloc[row_index+1:]
+        iloc1 = df.iloc[: row_index + 1]
+        iloc2 = df.iloc[row_index + 1 :]
         additional_row = pd.DataFrame(
-            columns = columns, 
-            index = [index[-1] + 1],
+            columns=columns,
+            index=[index[-1] + 1],
         )
-        df2 = pd.concat([
-            iloc1, 
-            additional_row, 
-            iloc2
-        ]).reset_index(drop=True)
+        df2 = pd.concat([iloc1, additional_row, iloc2]).reset_index(drop=True)
         df2.to_csv(file, index=False)
         set_load_file(True)
-                            
+
     def delete_row(column, row_index):
         set_cell(dict(column=column, row_index=row_index))
         df2 = df.drop(index=[row_index])
@@ -123,15 +116,14 @@ def dataframe(file: Path, set_load_file: Callable):
     column_actions = [
         solara.ColumnAction(icon="mdi-table-column-plus-before", name="", on_click=insert_left_column),
         solara.ColumnAction(icon="mdi-table-column-plus-after", name="", on_click=insert_right_column),
-        solara.ColumnAction(icon="mdi-table-column-remove", name="", on_click=delete_column)
+        solara.ColumnAction(icon="mdi-table-column-remove", name="", on_click=delete_column),
     ]
     cell_actions = [
         solara.CellAction(icon="mdi-table-row-plus-before", name="", on_click=insert_before_row),
         solara.CellAction(icon="mdi-table-row-plus-after", name="", on_click=insert_after_row),
         solara.CellAction(icon="mdi-table-row-remove", name="", on_click=delete_row),
     ]
-    solara.DataFrame(df, column_actions=column_actions, cell_actions=cell_actions)    
-   
+    solara.DataFrame(df, column_actions=column_actions, cell_actions=cell_actions)
 
 
 @solara.component
