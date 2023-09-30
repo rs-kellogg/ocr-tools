@@ -8,22 +8,9 @@ from solara.alias import rv
 import solara.website
 import ipywidgets as w
 from ipydatagrid import TextRenderer, DataGrid
-import pandas as pd
 from py2vega.functions.regexp import regexp, test
+import pandas as pd
 from ipydatagrid import Expr, DataGrid, TextRenderer, BarRenderer, VegaExpr
-
-
-def cell_observer_factory(grid):
-    def cell_changed(e):
-        if e["row"] == (len(grid.data) - 1) and e["column"] == "amount":
-            return
-        amounts = grid.data["amount"]
-        summed_amount = amounts[1:-2].sum()
-        given_total = amounts[-2:-1].sum()
-        diff = given_total - summed_amount
-        grid.set_cell_value("amount", len(grid.data) - 1, diff)
-
-    return cell_changed
 
 
 def background_color(cell):
@@ -36,18 +23,40 @@ def background_color(cell):
     else:
         return "pink"
 
-
+ 
 @solara.component
 def datagrid(file: Path):
+    renderer = TextRenderer(
+        text_color="black", background_color=Expr(background_color),
+    )     
+
+    def on_cell_changed(cell):
+        print(
+            "Cell at primary key {row} and column '{column}'({column_index}) changed to {value}".format(
+                row=cell["row"],
+                column=cell["column"],
+                column_index=cell["column_index"],
+                value=cell["value"],
+            )
+        )
+
+    def cell_observer_factory(grid):
+        print("calling cell_observer_factory")
+        def cell_changed(e):
+            grid.set_cell_value(e['column'], e['row'], "Hello!")
+
+        return cell_changed  
+
     df = pd.read_csv(file)
-    # if "Unnamed: 0" in df.columns:
-    #     df = df.drop(columns=["Unnamed: 0"])
     grid = DataGrid.element(
         dataframe=df,
         editable=True,
         layout={"height": f"1000px", "overflow_y": "auto"},
         base_row_size=30,
         base_column_size=120,
+        default_renderer=renderer,
+        cell_observer_factory=cell_observer_factory,
+        on_cell_change=on_cell_changed,
     )
 
 
@@ -156,7 +165,7 @@ def text_input():
     solara.InputText("Enter some text", value=text, continuous_update=continuous_update.value)
     with solara.Row():
         solara.Button("Clear", on_click=lambda: text.set(""))
-        solara.Button("Save", on_click=lambda: text.set(""))
+        # solara.Button("Save", on_click=lambda: text.set(""))
 
 
 @solara.component
