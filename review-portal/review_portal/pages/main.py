@@ -93,7 +93,7 @@ def Page(name: Optional[str] = "1970"):
                 with solara.CardActions():
                     solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-left-bold-box", on_click=on_left_click)
                     solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-right-bold-box", on_click=on_right_click)
-                    solara.Button("", outlined=True, color="primary", icon_name="save", disabled=True)
+                    # solara.Button("", outlined=True, color="primary", icon_name="save", disabled=True)
                     solara.Button("", outlined=True, color="primary", icon_name="refresh")
                     solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up")
                     solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down")
