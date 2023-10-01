@@ -28,7 +28,6 @@ def cell_observer_factory(grid, file, set_load_file):
     return cell_changed   
 
 
- 
 @solara.component
 def datagrid(file: Path, set_load_file: Callable):
     renderer = TextRenderer(
