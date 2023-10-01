@@ -25,6 +25,7 @@ PDF_DIR = DATA_DIR / "pdf"
 CSV_DIR = DATA_DIR / "csv"
 PNG_DIR = DATA_DIR / "png"
 
+
 current_file_index = solara.reactive(0)
 
 
@@ -82,9 +83,9 @@ def Page(name: Optional[str] = "1970"):
         # Main content
         grid_layout_initial = [
             {"h": 2, "i": "0", "moved": False, "w": 6, "x": 0, "y": 0},
-            {"h": 5, "i": "1", "moved": False, "w": 6, "x": 6, "y": 0},
+            {"h": 2, "i": "1", "moved": False, "w": 6, "x": 6, "y": 0},
             {"h": 1, "i": "2", "moved": False, "w": 6, "x": 0, "y": 2},
-            {"h": 1, "i": "3", "moved": False, "w": 6, "x": 6, "y": 5},
+            {"h": 1, "i": "3", "moved": False, "w": 6, "x": 6, "y": 2},
         ]
         grid_layout, set_grid_layout = solara.use_state(grid_layout_initial)
 
@@ -101,10 +102,7 @@ def Page(name: Optional[str] = "1970"):
                 with solara.CardActions():
                     solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-left-bold-box", on_click=on_left_click)
                     solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-right-bold-box", on_click=on_right_click)
-                    # solara.Button("", outlined=True, color="primary", icon_name="save", disabled=True)
                     solara.Button("", outlined=True, color="primary", icon_name="refresh", on_click=on_restore)
-                    solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up")
-                    solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down")
 
             with solara.Card(margin=0) as card3:
                 with solara.lab.Tabs():
@@ -114,6 +112,12 @@ def Page(name: Optional[str] = "1970"):
                         pdf_viewer(f"{name}.pdf", file)
 
             with solara.Card(margin=0) as card4:
+                status = solara.reactive("look")
+
+                with solara.ToggleButtonsSingle(value=status):
+                    solara.Button("", outlined=True, color="primary", icon_name="mdi-glasses", value="look")
+                    solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up", value="up")
+                    solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down", value="down")
                 if file and load_file:
                     solara.Info(f"load_file: {load_file}")
                     set_load_file(False)

@@ -17,14 +17,12 @@ def background_color(cell):
     elif test(r".{40,}", cell.value):
         return "pink"
     else:
-        return "pink"
+        return "white"
 
 
 def cell_observer_factory(grid, file, set_load_file):
     def cell_changed(e):
-        print(e)
         grid.data.iat[e['row'], e['column_index']] = e['value']
-        # grid.data.at[e['row'], e['column']] = e['value']
         grid.data.to_csv(file, index=True)
         set_load_file(True)
     return cell_changed   
@@ -34,7 +32,7 @@ def cell_observer_factory(grid, file, set_load_file):
 @solara.component
 def datagrid(file: Path, set_load_file: Callable):
     renderer = TextRenderer(
-        text_color="black", background_color=Expr(background_color),
+        text_wrap=True, text_color="black", background_color=Expr(background_color),
     )
     df = pd.read_csv(file, index_col=0)
     grid = DataGrid(
