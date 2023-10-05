@@ -1,4 +1,5 @@
-import sqlite3
+import time
+import csv, json
 from pathlib import Path
 from typing import Optional, cast, Dict, Any
 import git
@@ -24,9 +25,9 @@ PDF_DIR = DATA_DIR / "pdf"
 CSV_DIR = DATA_DIR / "csv"
 PNG_DIR = DATA_DIR / "png"
 
-
 current_file_index = solara.reactive(0)
-review_status_df = pd.read_csv(DATA_DIR / "review_status.csv")
+review_status_df = pd.read_csv(DATA_DIR / "review_status.csv", index_col="csv_file")
+
 
 @solara.component
 def Page(name: Optional[str] = "1970"):
@@ -36,17 +37,26 @@ def Page(name: Optional[str] = "1970"):
     png_files = list(PNG_DIR.glob("*.png"))
     png_files.sort()
 
-    def on_left_click():
-        current_file_index.value = max(current_file_index.value - 1, 0)
+    def load_current_file(file):
+        print(f"file_index: {current_file_index.value}, file name: {file.name}")
         file = csv_files[current_file_index.value]
+        # try:
+        #     review_status_df.loc[file.name]['status'] = 'complete'
+        #     review_status_df.loc[file.name]['note'] = text.value
+        #     review_status_df.to_csv(DATA_DIR / "review_status.csv", index=True, quoting=csv.QUOTE_ALL)
+        # except KeyError:
+        #     review_status_df.loc[file.name] = ["review", "", time.time()]
+        #     review_status_df.to_csv(DATA_DIR / "review_status.csv", index=True, quoting=csv.QUOTE_ALL)
         set_file(file)
         set_load_file(True)
 
+    def on_left_click():
+        current_file_index.value = max(current_file_index.value - 1, 0)
+        load_current_file(file)
+
     def on_right_click():
         current_file_index.value = min(current_file_index.value + 1, len(csv_files) - 1)
-        file = csv_files[current_file_index.value]
-        set_file(file)
-        set_load_file(True)
+        load_current_file(file)
 
     with solara.Column():
         solara.Title("Table Review App")
