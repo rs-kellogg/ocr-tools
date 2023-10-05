@@ -14,7 +14,6 @@ from review_portal.components.data import (
     dataframe,
     pdf_viewer,
     png_viewer,
-    text_input,
     ColorCard,
 )
 
