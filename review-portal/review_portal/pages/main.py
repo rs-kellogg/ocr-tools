@@ -87,8 +87,8 @@ def Page(name: Optional[str] = "1970"):
         grid_layout, set_grid_layout = solara.use_state(grid_layout_initial)
 
         def on_restore():
-            repo = git.Repo(file.parent)
-            repo.git.checkout([file.name])
+            repo = git.Repo(file.parent.parent)
+            repo.git.checkout([f"csv/{file.name}"])
             set_load_file(True)
 
         with solara.VBox() as main:
