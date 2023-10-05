@@ -100,13 +100,13 @@ def Page(name: Optional[str] = "1970"):
                 status = solara.reactive("look")
                 
                 with solara.CardActions():
-                    with solara.ToggleButtonsSingle(value=status):
+                        with solara.ToggleButtonsSingle(value=status):
+                            solara.Button("", outlined=True, color="primary", icon_name="mdi-glasses", value="look")
+                            solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up", value="up")
+                            solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down", value="down")
+                        
                         solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-left-bold-box", on_click=on_left_click)
                         solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-right-bold-box", on_click=on_right_click)
-
-                        solara.Button("", outlined=True, color="primary", icon_name="mdi-glasses", value="look")
-                        solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up", value="up")
-                        solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down", value="down")
                         solara.Button("", outlined=True, color="primary", icon_name="refresh", on_click=on_restore)
                         solara.Button("Clear Notes", on_click=lambda: text.set(""))
                 solara.InputText("Notes", value=text, continuous_update=True)
