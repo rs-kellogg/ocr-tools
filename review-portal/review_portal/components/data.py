@@ -140,17 +140,6 @@ def png_viewer(name: str, file: Path):
     solara.Image(f"/static/public/png/page-{page_number}.png")
 
 
-text = solara.reactive("")
-continuous_update = solara.reactive(True)
-
-@solara.component
-def text_input():
-    solara.InputText("Enter some text", value=text, continuous_update=continuous_update.value)
-    with solara.Row():
-        solara.Button("Clear", on_click=lambda: text.set(""))
-        # solara.Button("Save", on_click=lambda: text.set(""))
-
-
 @solara.component
 def ColorCard(title, color):
     with rv.Card(style_=f"background-color: {color}; width: 100%; height: 100%") as main:

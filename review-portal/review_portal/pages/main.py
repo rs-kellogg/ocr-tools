@@ -27,7 +27,7 @@ PNG_DIR = DATA_DIR / "png"
 
 
 current_file_index = solara.reactive(0)
-
+review_status_df = pd.read_csv(DATA_DIR / "review_status.csv")
 
 @solara.component
 def Page(name: Optional[str] = "1970"):
@@ -81,9 +81,9 @@ def Page(name: Optional[str] = "1970"):
         # Main content
         grid_layout_initial = [
             {"h": 2, "i": "0", "moved": False, "w": 6, "x": 0, "y": 0},
-            {"h": 2, "i": "1", "moved": False, "w": 6, "x": 6, "y": 0},
+            {"h": 5, "i": "1", "moved": False, "w": 6, "x": 6, "y": 0},
             {"h": 1, "i": "2", "moved": False, "w": 6, "x": 0, "y": 2},
-            {"h": 1, "i": "3", "moved": False, "w": 6, "x": 6, "y": 2},
+            {"h": 1, "i": "3", "moved": False, "w": 6, "x": 6, "y": 5},
         ]
         grid_layout, set_grid_layout = solara.use_state(grid_layout_initial)
 
@@ -97,10 +97,20 @@ def Page(name: Optional[str] = "1970"):
                 solara.Info(f"{pdf_file.name} - {file.name}")
 
             with solara.Card(title="", margin=0) as card2:
+                text = solara.reactive("")
+                status = solara.reactive("look")
+                
                 with solara.CardActions():
-                    solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-left-bold-box", on_click=on_left_click)
-                    solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-right-bold-box", on_click=on_right_click)
-                    solara.Button("", outlined=True, color="primary", icon_name="refresh", on_click=on_restore)
+                    with solara.ToggleButtonsSingle(value=status):
+                        solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-left-bold-box", on_click=on_left_click)
+                        solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-right-bold-box", on_click=on_right_click)
+
+                        solara.Button("", outlined=True, color="primary", icon_name="mdi-glasses", value="look")
+                        solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up", value="up")
+                        solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down", value="down")
+                        solara.Button("", outlined=True, color="primary", icon_name="refresh", on_click=on_restore)
+                        solara.Button("Clear Notes", on_click=lambda: text.set(""))
+                solara.InputText("Notes", value=text, continuous_update=True)
 
             with solara.Card(margin=0) as card3:
                 with solara.lab.Tabs():
@@ -110,14 +120,6 @@ def Page(name: Optional[str] = "1970"):
                         pdf_viewer(f"{name}.pdf", file)
 
             with solara.Card(margin=0) as card4:
-                status = solara.reactive("look")
-                
-                with solara.Columns():
-                    with solara.ToggleButtonsSingle(value=status):
-                        solara.Button("", outlined=True, color="primary", icon_name="mdi-glasses", value="look")
-                        solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up", value="up")
-                        solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down", value="down")
-                    text_input()
                 if file and load_file:
                     solara.Info(f"loading file: {file}")
                     set_load_file(False)
