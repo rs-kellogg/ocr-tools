@@ -143,7 +143,6 @@ def png_viewer(name: str, file: Path):
 text = solara.reactive("")
 continuous_update = solara.reactive(True)
 
-
 @solara.component
 def text_input():
     solara.InputText("Enter some text", value=text, continuous_update=continuous_update.value)

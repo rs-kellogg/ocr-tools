@@ -70,8 +70,6 @@ def Page(name: Optional[str] = "1970"):
                         set_path(None)
                         set_file(None)
 
-                    text_input()
-
                     solara.FileBrowser(
                         directory,
                         on_directory_change=set_directory,
@@ -113,13 +111,15 @@ def Page(name: Optional[str] = "1970"):
 
             with solara.Card(margin=0) as card4:
                 status = solara.reactive("look")
-
-                with solara.ToggleButtonsSingle(value=status):
-                    solara.Button("", outlined=True, color="primary", icon_name="mdi-glasses", value="look")
-                    solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up", value="up")
-                    solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down", value="down")
+                
+                with solara.Columns():
+                    with solara.ToggleButtonsSingle(value=status):
+                        solara.Button("", outlined=True, color="primary", icon_name="mdi-glasses", value="look")
+                        solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up", value="up")
+                        solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down", value="down")
+                    text_input()
                 if file and load_file:
-                    solara.Info(f"load_file: {load_file}")
+                    solara.Info(f"loading file: {file}")
                     set_load_file(False)
                 else:
                     with solara.lab.Tabs():
