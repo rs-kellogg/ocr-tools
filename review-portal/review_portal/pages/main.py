@@ -49,6 +49,7 @@ else:
 
 @solara.component
 def Page(name: Optional[str] = "1970"):
+    solara.Title("Table Review App")
     pdf_file = PDF_DIR / f"{name}.pdf"
 
     def load_metadata():
@@ -88,76 +89,73 @@ def Page(name: Optional[str] = "1970"):
         repo.git.checkout([f"csv/{current_file.name}"])
         load_file.value = True
 
-    with solara.Column():
-        solara.Title("Table Review App")
+    # -------------------------------------------------------------------------------------------------------------
+    # Sidebar
+    with solara.Sidebar():
+        with solara.Card("Select File"):
+            with solara.Column():
+                solara.Info(f"file_index: {current_file_index.value}, file name: {current_file.name}")
+                solara.FileBrowser(
+                    CSV_DIR,
+                    on_file_open=lambda file: set_current_file(csv_files.index(file)),
+                )
 
-        # -------------------------------------------------------------------------------------------------------------
-        # Sidebar
-        with solara.Sidebar():
-            with solara.Card("Select File"):
-                with solara.Column():
-                    solara.Info(f"file_index: {current_file_index.value}, file name: {current_file.name}")
-                    solara.FileBrowser(
-                        CSV_DIR,
-                        on_file_open=lambda file: set_current_file(csv_files.index(file)),
-                    )
+    # -------------------------------------------------------------------------------------------------------------
+    # Main content
+    grid_layout_initial = [
+        {"h": 2, "i": "0", "moved": False, "w": 6, "x": 0, "y": 0},
+        {"h": 5, "i": "1", "moved": False, "w": 6, "x": 6, "y": 0},
+        {"h": 1, "i": "2", "moved": False, "w": 6, "x": 0, "y": 2},
+        {"h": 1, "i": "3", "moved": False, "w": 6, "x": 6, "y": 5},
+    ]
+    grid_layout, set_grid_layout = solara.use_state(grid_layout_initial)
 
-        # -------------------------------------------------------------------------------------------------------------
-        # Main content
-        grid_layout_initial = [
-            {"h": 2, "i": "0", "moved": False, "w": 6, "x": 0, "y": 0},
-            {"h": 5, "i": "1", "moved": False, "w": 6, "x": 6, "y": 0},
-            {"h": 1, "i": "2", "moved": False, "w": 6, "x": 0, "y": 2},
-            {"h": 1, "i": "3", "moved": False, "w": 6, "x": 6, "y": 5},
-        ]
-        grid_layout, set_grid_layout = solara.use_state(grid_layout_initial)
+    with solara.VBox() as main:
+        with solara.Card(margin=0) as card1:
+            solara.Info(f"{pdf_file.name} - {current_file.name}")
 
-        with solara.VBox() as main:
-            with solara.Card(margin=0) as card1:
-                solara.Info(f"{pdf_file.name} - {current_file.name}")
+        with solara.Card(title="", margin=0) as card2:
+            with solara.CardActions():
+                with solara.ToggleButtonsSingle(value=status):
+                    solara.Button("", outlined=True, color="primary", icon_name="mdi-glasses", value="review")
+                    solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up", value="accept")
+                    solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down", value="reject")
 
-            with solara.Card(title="", margin=0) as card2:
-                with solara.CardActions():
-                    with solara.ToggleButtonsSingle(value=status):
-                        solara.Button("", outlined=True, color="primary", icon_name="mdi-glasses", value="review")
-                        solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up", value="accept")
-                        solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down", value="reject")
+                solara.Button(
+                    "",
+                    outlined=True,
+                    color="primary",
+                    icon_name="mdi-arrow-left-bold-box",
+                    on_click=lambda: set_current_file(max(current_file_index.value - 1, 0)),
+                )
+                solara.Button(
+                    "",
+                    outlined=True,
+                    color="primary",
+                    icon_name="mdi-arrow-right-bold-box",
+                    on_click=lambda: set_current_file(min(current_file_index.value + 1, len(csv_files) - 1)),
+                )
+                solara.Button("", outlined=True, color="primary", icon_name="refresh", on_click=on_restore)
+                solara.Button("Clear Notes", on_click=lambda: text.set(""))
+            solara.InputText("Notes", value=text, continuous_update=True)
 
-                    solara.Button(
-                        "",
-                        outlined=True,
-                        color="primary",
-                        icon_name="mdi-arrow-left-bold-box",
-                        on_click=lambda: set_current_file(max(current_file_index.value - 1, 0)),
-                    )
-                    solara.Button(
-                        "",
-                        outlined=True,
-                        color="primary",
-                        icon_name="mdi-arrow-right-bold-box",
-                        on_click=lambda: set_current_file(min(current_file_index.value + 1, len(csv_files) - 1)),
-                    )
-                    solara.Button("", outlined=True, color="primary", icon_name="refresh", on_click=on_restore)
-                    solara.Button("Clear Notes", on_click=lambda: text.set(""))
-                solara.InputText("Notes", value=text, continuous_update=True)
+        with solara.Card(margin=0) as card3:
+            with solara.lab.Tabs():
+                with solara.lab.Tab("PNG"):
+                    png_viewer(f"{name}.pdf", current_file)
+                with solara.lab.Tab("PDF"):
+                    pdf_viewer(f"{name}.pdf", current_file)
 
-            with solara.Card(margin=0) as card3:
+        with solara.Card(margin=0) as card4:
+            if current_file and load_file.value:
+                solara.Info(f"loading file: {current_file}")
+                load_file.value = False
+            else:
                 with solara.lab.Tabs():
-                    with solara.lab.Tab("PNG"):
-                        png_viewer(f"{name}.pdf", current_file)
-                    with solara.lab.Tab("PDF"):
-                        pdf_viewer(f"{name}.pdf", current_file)
+                    with solara.lab.Tab("Edit Cells"):
+                        datagrid(current_file, load_file)
+                    with solara.lab.Tab("Add/Remove"):
+                        dataframe(current_file, load_file)
 
-            with solara.Card(margin=0) as card4:
-                if current_file and load_file.value:
-                    solara.Info(f"loading file: {current_file}")
-                    load_file.value = False
-                else:
-                    with solara.lab.Tabs():
-                        with solara.lab.Tab("Edit Cells"):
-                            datagrid(current_file, load_file)
-                        with solara.lab.Tab("Add/Remove"):
-                            dataframe(current_file, load_file)
-
-            solara.Button("Reset to initial layout", on_click=lambda: set_grid_layout(grid_layout_initial))
-            solara.GridDraggable(items=[card1, card2, card3, card4], grid_layout=grid_layout, resizable=True, draggable=False, on_grid_layout=set_grid_layout)
+        solara.Button("Reset to initial layout", on_click=lambda: set_grid_layout(grid_layout_initial))
+        solara.GridDraggable(items=[card1, card2, card3, card4], grid_layout=grid_layout, resizable=True, draggable=False, on_grid_layout=set_grid_layout)
