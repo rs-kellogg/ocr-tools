@@ -22,16 +22,19 @@ def background_color(cell):
 
 def cell_observer_factory(grid, file, load_file):
     def cell_changed(e):
-        grid.data.iat[e['row'], e['column_index']] = e['value']
+        grid.data.iat[e["row"], e["column_index"]] = e["value"]
         grid.data.to_csv(file, index=True)
         load_file.value = True
-    return cell_changed   
+
+    return cell_changed
 
 
 @solara.component
 def datagrid(file: Path, load_file):
     renderer = TextRenderer(
-        text_wrap=True, text_color="black", background_color=Expr(background_color),
+        text_wrap=True,
+        text_color="black",
+        background_color=Expr(background_color),
     )
     df = pd.read_csv(file, index_col=0)
     grid = DataGrid(
@@ -79,10 +82,12 @@ def dataframe(file: Path, load_file):
         parts = []
         if row_index > 0:
             parts.append(df.iloc[: row_index - 1])
-        parts.append(pd.DataFrame(
-            columns=df.columns,
-            index=[df.index[-1] + 1],
-        ))
+        parts.append(
+            pd.DataFrame(
+                columns=df.columns,
+                index=[df.index[-1] + 1],
+            )
+        )
         parts.append(df.iloc[row_index:])
         df2 = pd.concat(parts).reset_index(drop=True)
         df2.to_csv(file, index=True)

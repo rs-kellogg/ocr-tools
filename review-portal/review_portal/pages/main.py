@@ -56,30 +56,22 @@ def Page(name: Optional[str] = "1970"):
         if current_file.name not in review_status_df.index:
             status.value = "review"
             text.value = ""
-            row_df = pd.DataFrame(
-                [[status.value, text.value, time.time()]], 
-                columns=["status", "note", "timestamp"], 
-                index=[current_file.name]
-            )
+            row_df = pd.DataFrame([[status.value, text.value, time.time()]], columns=["status", "note", "timestamp"], index=[current_file.name])
             review_status_df = pd.concat([review_status_df, row_df])
         else:
-            status.value = review_status_df.loc[current_file.name]['status']
-            text.value = review_status_df.loc[current_file.name]['note']
+            status.value = review_status_df.loc[current_file.name]["status"]
+            text.value = review_status_df.loc[current_file.name]["note"]
 
     def save_metadata():
         global review_status_df
         if current_file.name not in review_status_df.index:
-            row_df = pd.DataFrame(
-                [[status.value, text.value, time.time()]], 
-                columns=["status", "note", "timestamp"], 
-                index=[current_file.name]
-            )
+            row_df = pd.DataFrame([[status.value, text.value, time.time()]], columns=["status", "note", "timestamp"], index=[current_file.name])
             review_status_df = pd.concat([review_status_df, row_df])
         else:
-            review_status_df.at[current_file.name, 'status'] = status.value
-            review_status_df.at[current_file.name, 'note'] = text.value
-            review_status_df.at[current_file.name, 'timestamp'] = time.time()
-        
+            review_status_df.at[current_file.name, "status"] = status.value
+            review_status_df.at[current_file.name, "note"] = text.value
+            review_status_df.at[current_file.name, "timestamp"] = time.time()
+
         review_status_df.to_csv(DATA_DIR / "review_status.csv", index=True, quoting=csv.QUOTE_ALL)
 
     def set_current_file(index: int):
@@ -91,22 +83,10 @@ def Page(name: Optional[str] = "1970"):
         load_metadata()
         load_file.value = True
 
-        # file = csv_files[current_file_index.value]
-        # try:
-        #     review_status_df.loc[file.name]['status'] = 'complete'
-        #     review_status_df.loc[file.name]['note'] = text.value
-        #     review_status_df.to_csv(DATA_DIR / "review_status.csv", index=True, quoting=csv.QUOTE_ALL)
-        # except KeyError:
-        #     review_status_df.loc[file.name] = ["review", "", time.time()]
-        #     review_status_df.to_csv(DATA_DIR / "review_status.csv", index=True, quoting=csv.QUOTE_ALL)
-        # set_file(file)
-        # set_load_file(True)
-
-    def on_left_click():
-        set_current_file(max(current_file_index.value - 1, 0))
-
-    def on_right_click():
-        set_current_file(min(current_file_index.value + 1, len(csv_files) - 1))
+    def on_restore():
+        repo = git.Repo(current_file.parent.parent)
+        repo.git.checkout([f"csv/{current_file.name}"])
+        load_file.value = True
 
     with solara.Column():
         solara.Title("Table Review App")
@@ -147,26 +127,33 @@ def Page(name: Optional[str] = "1970"):
         ]
         grid_layout, set_grid_layout = solara.use_state(grid_layout_initial)
 
-        def on_restore():
-            repo = git.Repo(current_file.parent.parent)
-            repo.git.checkout([f"csv/{current_file.name}"])
-            load_file.value = True
-
         with solara.VBox() as main:
             with solara.Card(margin=0) as card1:
                 solara.Info(f"{pdf_file.name} - {current_file.name}")
 
             with solara.Card(title="", margin=0) as card2:
                 with solara.CardActions():
-                        with solara.ToggleButtonsSingle(value=status):
-                            solara.Button("", outlined=True, color="primary", icon_name="mdi-glasses", value="review")
-                            solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up", value="accept")
-                            solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down", value="reject")
-                        
-                        solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-left-bold-box", on_click=on_left_click)
-                        solara.Button("", outlined=True, color="primary", icon_name="mdi-arrow-right-bold-box", on_click=on_right_click)
-                        solara.Button("", outlined=True, color="primary", icon_name="refresh", on_click=on_restore)
-                        solara.Button("Clear Notes", on_click=lambda: text.set(""))
+                    with solara.ToggleButtonsSingle(value=status):
+                        solara.Button("", outlined=True, color="primary", icon_name="mdi-glasses", value="review")
+                        solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up", value="accept")
+                        solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down", value="reject")
+
+                    solara.Button(
+                        "",
+                        outlined=True,
+                        color="primary",
+                        icon_name="mdi-arrow-left-bold-box",
+                        on_click=lambda: set_current_file(max(current_file_index.value - 1, 0)),
+                    )
+                    solara.Button(
+                        "",
+                        outlined=True,
+                        color="primary",
+                        icon_name="mdi-arrow-right-bold-box",
+                        on_click=lambda: set_current_file(min(current_file_index.value + 1, len(csv_files) - 1)),
+                    )
+                    solara.Button("", outlined=True, color="primary", icon_name="refresh", on_click=on_restore)
+                    solara.Button("Clear Notes", on_click=lambda: text.set(""))
                 solara.InputText("Notes", value=text, continuous_update=True)
 
             with solara.Card(margin=0) as card3:
