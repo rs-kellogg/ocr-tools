@@ -97,8 +97,6 @@ def Page(name: Optional[str] = "1970"):
             with solara.Card("Select File"):
                 with solara.Column():
                     solara.Info(f"file_index: {current_file_index.value}, file name: {current_file.name}")
-                    # directory, set_directory = solara.use_state(CSV_DIR)
-
                     solara.FileBrowser(
                         CSV_DIR,
                         on_file_open=lambda file: set_current_file(csv_files.index(file)),
