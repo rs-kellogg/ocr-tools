@@ -98,24 +98,11 @@ def Page(name: Optional[str] = "1970"):
                 with solara.Column():
                     solara.Info(f"file_index: {current_file_index.value}, file name: {current_file.name}")
                     # directory, set_directory = solara.use_state(CSV_DIR)
-                    # file, set_file = solara.use_state(csv_files[0])
-                    # path, set_path = solara.use_state(csv_files[0].parent)
-                    # load_file, set_load_file = solara.use_state(False)
 
-                    # def my_set_file(file):
-                    #     set_file(file)
-                    #     set_load_file(True)
-
-                    # def reset_path():
-                    #     # set_path(None)
-                    #     set_file(None)
-
-                    # solara.FileBrowser(
-                    #     directory,
-                    #     on_directory_change=set_directory,
-                    #     on_path_select=set_path,
-                    #     on_file_open=my_set_file,
-                    # )
+                    solara.FileBrowser(
+                        CSV_DIR,
+                        on_file_open=lambda file: set_current_file(csv_files.index(file)),
+                    )
 
         # -------------------------------------------------------------------------------------------------------------
         # Main content
