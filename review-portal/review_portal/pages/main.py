@@ -99,7 +99,7 @@ def Page(name: Optional[str] = "1970"):
                 def set_file(file):
                     current_file_index.value = csv_files.index(file)
                     set_current_file(current_file_index.value)
-                
+
                 solara.FileBrowser(
                     CSV_DIR,
                     on_file_open=set_file,
