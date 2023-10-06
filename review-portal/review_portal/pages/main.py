@@ -60,8 +60,8 @@ def Page(name: Optional[str] = "1970"):
             row_df = pd.DataFrame([[status.value, text.value, time.time()]], columns=["status", "note", "timestamp"], index=[current_file.name])
             review_status_df = pd.concat([review_status_df, row_df])
         else:
-            status.value = review_status_df.loc[current_file.name]["status"]
-            text.value = review_status_df.loc[current_file.name]["note"]
+            status.value = review_status_df.at[current_file.name, "status"]
+            text.value = review_status_df.at[current_file.name, "note"]
 
     def save_metadata():
         global review_status_df
@@ -77,7 +77,7 @@ def Page(name: Optional[str] = "1970"):
 
     def set_current_file(index: int):
         global current_file
-        print(f"file_index: {current_file_index.value}, file name: {current_file.name}")
+        # print(f"file_index: {current_file_index.value}, file name: {current_file.name}")
         save_metadata()
         current_file_index.value = index
         current_file = csv_files[current_file_index.value]
