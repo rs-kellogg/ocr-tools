@@ -95,9 +95,14 @@ def Page(name: Optional[str] = "1970"):
         with solara.Card("Select File"):
             with solara.Column():
                 solara.Info(f"file_index: {current_file_index.value}, file name: {current_file.name}")
+
+                def set_file(file):
+                    current_file_index.value = csv_files.index(file)
+                    set_current_file(current_file_index.value)
+                
                 solara.FileBrowser(
                     CSV_DIR,
-                    on_file_open=lambda file: set_current_file(csv_files.index(file)),
+                    on_file_open=set_file,
                 )
 
     # -------------------------------------------------------------------------------------------------------------
@@ -135,6 +140,7 @@ def Page(name: Optional[str] = "1970"):
                     icon_name="mdi-arrow-right-bold-box",
                     on_click=lambda: set_current_file(min(current_file_index.value + 1, len(csv_files) - 1)),
                 )
+                solara.Button("", outlined=True, color="primary", icon_name="save", on_click=save_metadata)
                 solara.Button("", outlined=True, color="primary", icon_name="refresh", on_click=on_restore)
                 solara.Button("Clear Notes", on_click=lambda: text.set(""))
             solara.InputText("Notes", value=text, continuous_update=True)
