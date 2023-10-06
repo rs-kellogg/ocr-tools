@@ -49,7 +49,7 @@ else:
 
 @solara.component
 def Page(name: Optional[str] = "1970"):
-    solara.Title("Table Review App")
+    solara.Title("Review Tables")
     pdf_file = PDF_DIR / f"{name}.pdf"
 
     def load_metadata():
