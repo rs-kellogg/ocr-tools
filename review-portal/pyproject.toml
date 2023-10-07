@@ -20,6 +20,7 @@ dependencies = [
     "ipydatagrid",
     "bqplot",
     "GitPython",
+    "polars[numpy, pandas]"
 ]
 
 [project.urls]
