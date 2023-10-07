@@ -1,9 +1,10 @@
-import time
+import datetime as dt
 import csv, json
 from pathlib import Path
 from typing import Optional, cast, Dict, Any
 import git
 import pandas as pd
+import polars as pl
 from ipydatagrid import Expr, DataGrid, TextRenderer
 from py2vega.functions.regexp import regexp, test
 import solara
@@ -37,45 +38,63 @@ png_files = list(PNG_DIR.glob("*.png"))
 png_files.sort()
 
 # ---------------------------------------------------------------------------------------------------------------------
-# metadata
-if not (DATA_DIR / "review_status.csv").exists():
-    review_status_df = pd.DataFrame({"status": pd.Series(dtype="str"), "note": pd.Series(dtype="str"), "timestamp": pd.Series(dtype="float")})
-    review_status_df.to_csv(DATA_DIR / "review_status.csv", index=True, quoting=csv.QUOTE_ALL)
-review_status_df = pd.read_csv(DATA_DIR / "review_status.csv", index_col=0, quoting=csv.QUOTE_ALL)
+# review metadata
+review_schema = {
+        "file": pl.Utf8, "status": pl.Utf8, "note": pl.Utf8, "timestamp":pl.Utf8
+}
+
+review_status_df = pl.read_csv(
+    DATA_DIR / "review_status.csv",
+    schema=review_schema,
+)
+
+def test_file_exists(df, file_name):
+    return file_name in df.select(pl.col("file")).to_series()
+
+def get_row(df, file_name):
+    return df.row(by_predicate=pl.col("file").is_in([file_name]), named=True)
+
+def get_field(df, file_name, field, default):
+    if test_file_exists(df, file_name):
+        row = get_row(df, file_name)
+        return row[field]
+    return default
+
+def append_row(df, file_name, status, note):
+    if test_file_exists(df, file_name):
+        df = df.filter(pl.col("file") != file_name)
+    df_row = pl.DataFrame(
+        {
+            "file": [file_name],
+            "status": [status],
+            "note": [note],
+            "timestamp": [str(dt.datetime.now())]
+        },
+        schema=review_schema
+    )
+    return df.extend(df_row)
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # reactive variables
 current_file_index = solara.reactive(0)
 load_file = solara.reactive(True)
-text = solara.reactive(review_status_df.at[current_file.name, "note"] if current_file.name in review_status_df.index else "")
-status = solara.reactive(review_status_df.at[current_file.name, "status"] if current_file.name in review_status_df.index else "review")
+text = solara.reactive(get_field(review_status_df, current_file.name, "note", ""))
+status = solara.reactive(get_field(review_status_df, current_file.name, "status", "review"))
 
 
 # ---------------------------------------------------------------------------------------------------------------------
 # functions
 def load_metadata():
     global review_status_df
-    if current_file.name not in review_status_df.index:
-        status.value = "review"
-        text.value = ""
-        row_df = pd.DataFrame([[status.value, text.value, time.time()]], columns=["status", "note", "timestamp"], index=[current_file.name])
-        review_status_df = pd.concat([review_status_df, row_df])
-    else:
-        status.value = review_status_df.at[current_file.name, "status"]
-        text.value = review_status_df.at[current_file.name, "note"]
+    text.value = get_field(review_status_df, current_file.name, "note", "")
+    status.value = get_field(review_status_df, current_file.name, "status", "review")
 
 
 def save_metadata():
     global review_status_df
-    if current_file.name not in review_status_df.index:
-        row_df = pd.DataFrame([[status.value, text.value, time.time()]], columns=["status", "note", "timestamp"], index=[current_file.name])
-        review_status_df = pd.concat([review_status_df, row_df])
-    else:
-        review_status_df.at[current_file.name, "status"] = status.value
-        review_status_df.at[current_file.name, "note"] = text.value
-        review_status_df.at[current_file.name, "timestamp"] = time.time()
-
-    review_status_df.to_csv(DATA_DIR / "review_status.csv", index=True, quoting=csv.QUOTE_ALL)
+    review_status_df = append_row(review_status_df, current_file.name, status.value, text.value)
+    review_status_df.write_csv(DATA_DIR / "review_status.csv")
 
 
 def set_current_file(index: int):
