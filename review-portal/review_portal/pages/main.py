@@ -17,6 +17,7 @@ from review_portal.components.data import (
     png_viewer,
 )
 
+# ---------------------------------------------------------------------------------------------------------------------
 # data paths
 HERE = Path(__file__)
 DATA_DIR = HERE.parent / f"../public/"
@@ -24,76 +25,81 @@ PDF_DIR = DATA_DIR / "pdf"
 CSV_DIR = DATA_DIR / "csv"
 PNG_DIR = DATA_DIR / "png"
 
+# ---------------------------------------------------------------------------------------------------------------------
 # csv files
 csv_files = list(CSV_DIR.glob("*.csv"))
 csv_files.sort()
 current_file = csv_files[0]
 
+# ---------------------------------------------------------------------------------------------------------------------
 # png files
 png_files = list(PNG_DIR.glob("*.png"))
 png_files.sort()
 
+# ---------------------------------------------------------------------------------------------------------------------
 # metadata
-review_status_df = None
 if not (DATA_DIR / "review_status.csv").exists():
     review_status_df = pd.DataFrame(
-        columns=["status", "note", "timestamp"],
-        # dtype={"status": str, "note": str, "timestamp": float},
-    )
+        {'status': pd.Series(dtype='str'),
+        'note': pd.Series(dtype='str'),
+        'timestamp': pd.Series(dtype='float')})
     review_status_df.to_csv(DATA_DIR / "review_status.csv", index=True, quoting=csv.QUOTE_ALL)
-else:
-    review_status_df = pd.read_csv(DATA_DIR / "review_status.csv", index_col=0, quoting=csv.QUOTE_ALL)
+review_status_df = pd.read_csv(DATA_DIR / "review_status.csv", index_col=0, quoting=csv.QUOTE_ALL)
 
+# ---------------------------------------------------------------------------------------------------------------------
 # reactive variables
 current_file_index = solara.reactive(0)
 load_file = solara.reactive(True)
-text = solara.reactive(review_status_df.at[current_file.name, "note"])
-status = solara.reactive(review_status_df.at[current_file.name, "status"])
+text = solara.reactive(review_status_df.at[current_file.name, "note"] if current_file.name in review_status_df.index else "")
+status = solara.reactive(review_status_df.at[current_file.name, "status"] if current_file.name in review_status_df.index else "review") 
 
 
+# ---------------------------------------------------------------------------------------------------------------------
+# functions
+def load_metadata():
+    global review_status_df
+    if current_file.name not in review_status_df.index:
+        status.value = "review"
+        text.value = ""
+        row_df = pd.DataFrame([[status.value, text.value, time.time()]], columns=["status", "note", "timestamp"], index=[current_file.name])
+        review_status_df = pd.concat([review_status_df, row_df])
+    else:
+        status.value = review_status_df.at[current_file.name, "status"]
+        text.value = review_status_df.at[current_file.name, "note"]
+
+def save_metadata():
+    global review_status_df
+    if current_file.name not in review_status_df.index:
+        row_df = pd.DataFrame([[status.value, text.value, time.time()]], columns=["status", "note", "timestamp"], index=[current_file.name])
+        review_status_df = pd.concat([review_status_df, row_df])
+    else:
+        review_status_df.at[current_file.name, "status"] = status.value
+        review_status_df.at[current_file.name, "note"] = text.value
+        review_status_df.at[current_file.name, "timestamp"] = time.time()
+
+    review_status_df.to_csv(DATA_DIR / "review_status.csv", index=True, quoting=csv.QUOTE_ALL)
+
+def set_current_file(index: int):
+    global current_file
+    # print(f"file_index: {current_file_index.value}, file name: {current_file.name}")
+    save_metadata()
+    current_file_index.value = index
+    current_file = csv_files[current_file_index.value]
+    load_metadata()
+    load_file.value = True
+
+def on_restore():
+    repo = git.Repo(current_file.parent.parent)
+    repo.git.checkout([f"csv/{current_file.name}"])
+    load_file.value = True
+
+
+# ---------------------------------------------------------------------------------------------------------------------
 @solara.component
 def Page(name: Optional[str] = "1970"):
     solara.Title("Review Tables")
-    pdf_file = PDF_DIR / f"{name}.pdf"
 
-    def load_metadata():
-        global review_status_df
-        if current_file.name not in review_status_df.index:
-            status.value = "review"
-            text.value = ""
-            row_df = pd.DataFrame([[status.value, text.value, time.time()]], columns=["status", "note", "timestamp"], index=[current_file.name])
-            review_status_df = pd.concat([review_status_df, row_df])
-        else:
-            status.value = review_status_df.at[current_file.name, "status"]
-            text.value = review_status_df.at[current_file.name, "note"]
-
-    def save_metadata():
-        global review_status_df
-        if current_file.name not in review_status_df.index:
-            row_df = pd.DataFrame([[status.value, text.value, time.time()]], columns=["status", "note", "timestamp"], index=[current_file.name])
-            review_status_df = pd.concat([review_status_df, row_df])
-        else:
-            review_status_df.at[current_file.name, "status"] = status.value
-            review_status_df.at[current_file.name, "note"] = text.value
-            review_status_df.at[current_file.name, "timestamp"] = time.time()
-
-        review_status_df.to_csv(DATA_DIR / "review_status.csv", index=True, quoting=csv.QUOTE_ALL)
-
-    def set_current_file(index: int):
-        global current_file
-        # print(f"file_index: {current_file_index.value}, file name: {current_file.name}")
-        save_metadata()
-        current_file_index.value = index
-        current_file = csv_files[current_file_index.value]
-        load_metadata()
-        load_file.value = True
-
-    def on_restore():
-        repo = git.Repo(current_file.parent.parent)
-        repo.git.checkout([f"csv/{current_file.name}"])
-        load_file.value = True
-
-    # -------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
     # Sidebar
     with solara.Sidebar():
         with solara.Card("Select File"):
@@ -109,7 +115,7 @@ def Page(name: Optional[str] = "1970"):
                     on_file_open=set_file,
                 )
 
-    # -------------------------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
     # Main content
     grid_layout_initial = [
         {"h": 2, "i": "0", "moved": False, "w": 6, "x": 0, "y": 0},
@@ -121,7 +127,7 @@ def Page(name: Optional[str] = "1970"):
 
     with solara.VBox() as main:
         with solara.Card(margin=0) as card1:
-            solara.Info(f"{pdf_file.name} - {current_file.name}")
+            solara.Info(f"{name} - {current_file.name}")
 
         with solara.Card(title="", margin=0) as card2:
             with solara.CardActions():
