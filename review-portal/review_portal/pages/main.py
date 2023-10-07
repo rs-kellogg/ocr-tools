@@ -15,36 +15,40 @@ from review_portal.components.data import (
     dataframe,
     pdf_viewer,
     png_viewer,
-    ColorCard,
 )
 
-
+# data paths
 HERE = Path(__file__)
 DATA_DIR = HERE.parent / f"../public/"
 PDF_DIR = DATA_DIR / "pdf"
 CSV_DIR = DATA_DIR / "csv"
 PNG_DIR = DATA_DIR / "png"
 
+# csv files
 csv_files = list(CSV_DIR.glob("*.csv"))
 csv_files.sort()
+current_file = csv_files[0]
+
+# png files
 png_files = list(PNG_DIR.glob("*.png"))
 png_files.sort()
 
-current_file_index = solara.reactive(0)
-current_file = csv_files[0]
-load_file = solara.reactive(True)
-text = solara.reactive("")
-status = solara.reactive("review")
-
+# metadata
+review_status_df = None
 if not (DATA_DIR / "review_status.csv").exists():
     review_status_df = pd.DataFrame(
-        [[status.value, text.value, time.time()]],
         columns=["status", "note", "timestamp"],
-        index=[current_file.name],
+        # dtype={"status": str, "note": str, "timestamp": float},
     )
     review_status_df.to_csv(DATA_DIR / "review_status.csv", index=True, quoting=csv.QUOTE_ALL)
 else:
     review_status_df = pd.read_csv(DATA_DIR / "review_status.csv", index_col=0, quoting=csv.QUOTE_ALL)
+
+# reactive variables
+current_file_index = solara.reactive(0)
+load_file = solara.reactive(True)
+text = solara.reactive(review_status_df.at[current_file.name, "note"])
+status = solara.reactive(review_status_df.at[current_file.name, "status"])
 
 
 @solara.component
