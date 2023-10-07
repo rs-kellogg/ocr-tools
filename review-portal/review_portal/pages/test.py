@@ -8,12 +8,13 @@ csv_files.sort()
 
 current_file_index = solara.reactive(0)
 
+
 @solara.component
 def Page():
     def on_click():
         if current_file_index.value is None:
             current_file_index.value = 0
         current_file_index.value += 1
-    
+
     solara.Button(f"Index {current_file_index.value}", color="primary", on_click=on_click)
     solara.Info(f"File name: {csv_files[current_file_index.value].name}")

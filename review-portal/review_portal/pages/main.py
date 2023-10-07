@@ -39,10 +39,7 @@ png_files.sort()
 # ---------------------------------------------------------------------------------------------------------------------
 # metadata
 if not (DATA_DIR / "review_status.csv").exists():
-    review_status_df = pd.DataFrame(
-        {'status': pd.Series(dtype='str'),
-        'note': pd.Series(dtype='str'),
-        'timestamp': pd.Series(dtype='float')})
+    review_status_df = pd.DataFrame({"status": pd.Series(dtype="str"), "note": pd.Series(dtype="str"), "timestamp": pd.Series(dtype="float")})
     review_status_df.to_csv(DATA_DIR / "review_status.csv", index=True, quoting=csv.QUOTE_ALL)
 review_status_df = pd.read_csv(DATA_DIR / "review_status.csv", index_col=0, quoting=csv.QUOTE_ALL)
 
@@ -51,7 +48,7 @@ review_status_df = pd.read_csv(DATA_DIR / "review_status.csv", index_col=0, quot
 current_file_index = solara.reactive(0)
 load_file = solara.reactive(True)
 text = solara.reactive(review_status_df.at[current_file.name, "note"] if current_file.name in review_status_df.index else "")
-status = solara.reactive(review_status_df.at[current_file.name, "status"] if current_file.name in review_status_df.index else "review") 
+status = solara.reactive(review_status_df.at[current_file.name, "status"] if current_file.name in review_status_df.index else "review")
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -67,6 +64,7 @@ def load_metadata():
         status.value = review_status_df.at[current_file.name, "status"]
         text.value = review_status_df.at[current_file.name, "note"]
 
+
 def save_metadata():
     global review_status_df
     if current_file.name not in review_status_df.index:
@@ -79,14 +77,15 @@ def save_metadata():
 
     review_status_df.to_csv(DATA_DIR / "review_status.csv", index=True, quoting=csv.QUOTE_ALL)
 
+
 def set_current_file(index: int):
     global current_file
-    # print(f"file_index: {current_file_index.value}, file name: {current_file.name}")
     save_metadata()
     current_file_index.value = index
     current_file = csv_files[current_file_index.value]
     load_metadata()
     load_file.value = True
+
 
 def on_restore():
     repo = git.Repo(current_file.parent.parent)

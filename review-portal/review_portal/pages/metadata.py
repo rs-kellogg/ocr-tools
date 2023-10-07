@@ -6,6 +6,7 @@ from .main import HERE, DATA_DIR, PDF_DIR, CSV_DIR, PNG_DIR
 
 status = solara.reactive("review")
 
+
 @solara.component
 def Page():
     review_status_df = pd.read_csv(DATA_DIR / "review_status.csv", index_col=0, quoting=csv.QUOTE_ALL)
