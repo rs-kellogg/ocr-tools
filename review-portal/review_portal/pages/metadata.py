@@ -24,8 +24,10 @@ def DataGrid():
             df = review_status_df.filter(pl.col("status").is_in([status.value]))
         return df.to_pandas()
 
+    df = filter_status(status)
+    solara.Info(f"{status.value}: {len(df)}")
     grid = ipydatagrid.DataGrid(
-        dataframe=filter_status(status),
+        dataframe=df,
         editable=False,
         layout={"height": f"1000px", "overflow_y": "auto"},
         base_row_size=30,
@@ -46,6 +48,5 @@ def Page():
 
     with solara.Card(title="", margin=0):
         if status.value:
-            solara.Info(f"{status.value}")
             with solara.Card():
                 DataGrid()
