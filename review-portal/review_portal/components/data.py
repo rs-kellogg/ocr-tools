@@ -14,22 +14,6 @@ DATA_DIR = HERE.parent / f"../public/"
 
 
 def background_color_factory():
-    # background_df = pl.read_csv(
-    #     DATA_DIR / "background.csv",
-    #     schema={"pattern": pl.Utf8, "color": pl.Utf8},
-    # )
-    # def background_color(cell):
-    #     for row in background_df.rows(named=True):
-    #         if test(row["pattern"], cell.value):
-    #             return row["color"]
-    #     return "white"
-    
-    # value = """
-    #     if(test('^[A-Z].*', cell.value), 'orange', 
-    #     if(test('^[0-9].*', cell.value), 'yellow', 
-    #     'white'))
-    #     """
-    # return VegaExpr(value=value)
     background_df = pl.read_csv(
         DATA_DIR / "background.csv",
         schema={"pattern": pl.Utf8, "color": pl.Utf8},
