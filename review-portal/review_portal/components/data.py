@@ -13,29 +13,35 @@ HERE = Path(__file__)
 DATA_DIR = HERE.parent / f"../public/"
 
 
-
-def background_color(cell):
-    if test(r"^[A-Z].*", cell.value):
-        return "lightgreen"
-    elif test(r"\$", cell.value):
-        return "pink"
-    elif test(r".{40,}", cell.value):
-        return "pink"
-    else:
-        return "white"
-
-
 def background_color_factory():
+    # background_df = pl.read_csv(
+    #     DATA_DIR / "background.csv",
+    #     schema={"pattern": pl.Utf8, "color": pl.Utf8},
+    # )
+    # def background_color(cell):
+    #     for row in background_df.rows(named=True):
+    #         if test(row["pattern"], cell.value):
+    #             return row["color"]
+    #     return "white"
+    
+    # value = """
+    #     if(test('^[A-Z].*', cell.value), 'orange', 
+    #     if(test('^[0-9].*', cell.value), 'yellow', 
+    #     'white'))
+    #     """
+    # return VegaExpr(value=value)
     background_df = pl.read_csv(
         DATA_DIR / "background.csv",
         schema={"pattern": pl.Utf8, "color": pl.Utf8},
     )
-    def background_color(cell):
-        for row in background_df.rows(named=True):
-            if test(row["pattern"], cell.value):
-                return row["color"]
-        return "white"
-    return background_color
+    value = ""
+    for row in background_df.rows(named=True):
+        if row['pattern'] == "":
+            value += f"{row['color']}{')'*(len(background_df)-1)}"
+            break
+        value += f"if(test('{row['pattern']}', cell.value), '{row['color']}',\n"
+        
+    return VegaExpr(value=value)
 
 
 def cell_observer_factory(grid, file, load_file):
@@ -52,7 +58,7 @@ def datagrid(file: Path, load_file):
     renderer = TextRenderer(
         text_wrap=True,
         text_color="black",
-        background_color=Expr(background_color),
+        background_color=background_color_factory(),
     )
     df = pd.read_csv(file, index_col=0)
     grid = DataGrid(
