@@ -112,8 +112,13 @@ def Page(name: Optional[str] = "1970"):
     # Sidebar
     with solara.Sidebar():
         with solara.Card("Select File"):
+            filter_status = solara.use_reactive("all")
             with solara.Column():
-                solara.Info(f"file_index: {current_file_index.value}, file name: {current_file.name}")
+                with solara.ToggleButtonsSingle(value=filter_status):
+                    solara.Button("All", outlined=True, color="primary", icon_name="", value="all")
+                    solara.Button("", outlined=True, color="primary", icon_name="mdi-glasses", value="review")
+                    solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-up", value="accept")
+                    solara.Button("", outlined=True, color="primary", icon_name="mdi-thumb-down", value="reject")
 
                 def set_file(file):
                     current_file_index.value = csv_files.index(file)
@@ -172,7 +177,7 @@ def Page(name: Optional[str] = "1970"):
                     pdf_viewer(f"{name}.pdf", current_file)
 
         with solara.Card(margin=0) as card4:
-            if current_file and load_file.value:
+            if load_file.value:
                 solara.Info(f"loading file: {current_file}")
                 load_file.value = False
             else:
