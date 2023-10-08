@@ -1,12 +1,17 @@
 from pathlib import Path
 from typing import Optional, cast, Dict, Any, Callable
 import pandas as pd
+import polars as pl
 import solara
 import solara.lab
 from solara.alias import rv
 from IPython.display import IFrame, Image, FileLink, HTML, display
 from py2vega.functions.regexp import regexp, test
 from ipydatagrid import Expr, DataGrid, TextRenderer, BarRenderer, VegaExpr
+
+HERE = Path(__file__)
+DATA_DIR = HERE.parent / f"../public/"
+
 
 
 def background_color(cell):
@@ -18,6 +23,19 @@ def background_color(cell):
         return "pink"
     else:
         return "white"
+
+
+def background_color_factory():
+    background_df = pl.read_csv(
+        DATA_DIR / "background.csv",
+        schema={"pattern": pl.Utf8, "color": pl.Utf8},
+    )
+    def background_color(cell):
+        for row in background_df.rows(named=True):
+            if test(row["pattern"], cell.value):
+                return row["color"]
+        return "white"
+    return background_color
 
 
 def cell_observer_factory(grid, file, load_file):
