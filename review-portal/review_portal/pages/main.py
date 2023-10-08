@@ -39,39 +39,30 @@ png_files.sort()
 
 # ---------------------------------------------------------------------------------------------------------------------
 # review metadata
-review_schema = {
-        "file": pl.Utf8, "status": pl.Utf8, "note": pl.Utf8, "timestamp":pl.Utf8
-}
+review_schema = {"file": pl.Utf8, "status": pl.Utf8, "note": pl.Utf8, "timestamp": pl.Utf8}
 
 review_status_df = pl.read_csv(
     DATA_DIR / "review_status.csv",
     schema=review_schema,
 )
 
+
 def test_file_exists(df, file_name):
     return file_name in df.select(pl.col("file")).to_series()
+
 
 def get_row(df, file_name):
     return df.row(by_predicate=pl.col("file").is_in([file_name]), named=True)
 
+
 def get_field(df, file_name, field, default):
-    if test_file_exists(df, file_name):
-        row = get_row(df, file_name)
-        return row[field]
-    return default
+    return get_row(df, file_name)[field] if test_file_exists(df, file_name) else default
+
 
 def append_row(df, file_name, status, note):
     if test_file_exists(df, file_name):
         df = df.filter(pl.col("file") != file_name)
-    df_row = pl.DataFrame(
-        {
-            "file": [file_name],
-            "status": [status],
-            "note": [note],
-            "timestamp": [str(dt.datetime.now())]
-        },
-        schema=review_schema
-    )
+    df_row = pl.DataFrame({"file": [file_name], "status": [status], "note": [note], "timestamp": [str(dt.datetime.now())]}, schema=review_schema)
     return df.extend(df_row)
 
 
