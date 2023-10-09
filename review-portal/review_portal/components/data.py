@@ -19,12 +19,15 @@ def background_color_factory():
         schema={"pattern": pl.Utf8, "color": pl.Utf8},
     )
     value = ""
+    num_cases = 0
     for row in background_df.rows(named=True):
-        if row['pattern'] == "":
-            value += f"{row['color']}{')'*(len(background_df)-1)}"
-            break
-        value += f"if(test('{row['pattern']}', cell.value), '{row['color']}',\n"
-        
+        if row['pattern'] != "" and row['color'] != "":
+            value += f"if(test('{row['pattern']}', cell.value), '{row['color']}',\n"
+            num_cases += 1
+        elif row['pattern'] == "" and row['color'] != "":
+            print("adding default case")
+            value += f"{row['color']}{')'*(num_cases)}"
+            break        
     return VegaExpr(value=value)
 
 
@@ -50,12 +53,10 @@ def datagrid(file: Path, load_file):
         editable=True,
         layout={"height": f"1000px", "overflow_y": "auto"},
         base_row_size=30,
-        base_column_size=120,
+        base_column_size=200,
         default_renderer=renderer,
     )
     grid.on_cell_change(cell_observer_factory(grid, file, load_file))
-    grid.auto_fit_params = {"area": "body", "padding": 120}
-    grid.auto_fit_columns = True
     display(grid)
 
 
