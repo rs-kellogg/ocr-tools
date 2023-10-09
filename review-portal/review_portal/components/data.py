@@ -25,7 +25,6 @@ def background_color_factory():
             value += f"if(test('{row['pattern']}', cell.value), '{row['color']}',\n"
             num_cases += 1
         elif row['pattern'] == "" and row['color'] != "":
-            print("adding default case")
             value += f"{row['color']}{')'*(num_cases)}"
             break        
     return VegaExpr(value=value)
