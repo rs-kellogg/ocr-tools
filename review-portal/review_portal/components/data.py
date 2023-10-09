@@ -54,6 +54,8 @@ def datagrid(file: Path, load_file):
         default_renderer=renderer,
     )
     grid.on_cell_change(cell_observer_factory(grid, file, load_file))
+    grid.auto_fit_params = {"area": "body", "padding": 120}
+    grid.auto_fit_columns = True
     display(grid)
 
 
