@@ -35,6 +35,7 @@ where = ["review_portal"]
 
 [tool.setuptools.package-data]
 "*" = ["*.pdf"]
+"review_portal.components.txt" = ["*.txt"]
 "review_portal.public.pdf" = ["*.pdf"]
 "review_portal.public.csv" = ["*.csv"]
 "review_portal.public.json" = ["*.json"]
