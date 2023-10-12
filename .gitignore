@@ -65,4 +65,4 @@ dmypy.json
 # Misc
 **/temp/
 **/*~
-
+**/pdf/

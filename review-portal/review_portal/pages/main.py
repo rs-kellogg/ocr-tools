@@ -47,19 +47,19 @@ review_status_df = pl.read_csv(
 )
 
 
-def test_file_exists(df, file_name):
+def test_file_exists(df: pl.DataFrame, file_name: str):
     return file_name in df.select(pl.col("file")).to_series()
 
 
-def get_row(df, file_name):
+def get_row(df: pl.DataFrame, file_name: str):
     return df.row(by_predicate=pl.col("file").is_in([file_name]), named=True)
 
 
-def get_field(df, file_name, field, default):
+def get_field(df: pl.DataFrame, file_name: str, field: str, default: str):
     return get_row(df, file_name)[field] if test_file_exists(df, file_name) else default
 
 
-def append_row(df, file_name, status, note):
+def append_row(df: pl.DataFrame, file_name: str, status: str, note: str):
     if test_file_exists(df, file_name):
         df = df.filter(pl.col("file") != file_name)
     df_row = pl.DataFrame({"file": [file_name], "status": [status], "note": [note], "timestamp": [str(dt.datetime.now())]}, schema=review_schema)

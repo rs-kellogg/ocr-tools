@@ -4,15 +4,6 @@
 			"path": "."
 		},
 		{
-			"path": "../ocr-review"
-		},
-		{
-			"path": "../ocr-projects"
-		},
-		{
-			"path": "../pdf-extraction"
-		},
-		{
 			"path": "../PyMuPDF-Utilities"
 		}
 	],
