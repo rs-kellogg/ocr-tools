@@ -1,8 +1,9 @@
 import json
 import typer
+import logging
 from pathlib import Path
 from rich import console as cons
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from PIL import Image as im
 import ocrtools.pdftools.functions as F
 
@@ -14,7 +15,7 @@ CONFIG: Dict[str, str] = {}
 
 # -----------------------------------------------------------------------------
 @app.command()
-def extract_pages(
+def export_pages(
     pdf_file: Path = typer.Argument(..., help="Path to input PDF file"),
     outdir: Path = typer.Option(Path("."), help="Path to output page image files"),
     start: Optional[int] = typer.Option(None, help="Starting page number"),
@@ -22,7 +23,7 @@ def extract_pages(
 ):
     console.print(f"extracting pages from: {pdf_file}")
     outdir.mkdir(parents=True, exist_ok=True)
-    F.extract_pages(pdf_file, outdir, start, end)
+    F.export_pages(pdf_file, outdir, start, end)
 
 
 # -----------------------------------------------------------------------------
@@ -61,7 +62,7 @@ def ocr_pages(
 
 
 @app.command()
-def extract_tables(
+def export_tables(
     indir: Path = typer.Argument(..., help="Path to input files"),
     outdir: Path = typer.Option(Path("."), help="Path to output CSV files"),
 ):
@@ -70,3 +71,32 @@ def extract_tables(
     for json_file in indir.glob("*.json"):
         console.print(f"Extracting tables from: {json_file}")
         F.extract_tables(json_file, outdir)
+
+
+# -----------------------------------------------------------------------------
+@app.command()
+def extract_all(
+    in_dir: Path = typer.Argument(..., help="Path to input PDF files"),
+    out_dir: Optional[Path] = typer.Option(
+        Path("."),
+        "--dir",
+        help="The directory where the extracted output files will be created.",
+    ),
+):
+    logging.basicConfig(
+        filename=f'{out_dir}/extract.log',           
+        level=logging.INFO,  
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S')
+
+    logger = logging.getLogger()
+
+    for pdf in in_dir.glob("*.pdf"):
+        console.print(f"processing file: {pdf.name}")
+        logger.info(pdf.name)
+        try:
+            paper = F.PaperItem(pdf)
+            paper.extract(out_dir)
+        except Exception as e:
+            logger.error(f"exception: {type(e)}")
+            continue
