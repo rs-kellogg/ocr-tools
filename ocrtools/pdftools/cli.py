@@ -15,7 +15,7 @@ CONFIG: Dict[str, str] = {}
 
 # -----------------------------------------------------------------------------
 @app.command()
-def export_pages(
+def extract_pages(
     pdf_file: Path = typer.Argument(..., help="Path to input PDF file"),
     outdir: Path = typer.Option(Path("."), help="Path to output page image files"),
     start: Optional[int] = typer.Option(None, help="Starting page number"),
@@ -75,14 +75,13 @@ def export_tables(
 
 # -----------------------------------------------------------------------------
 @app.command()
-def extract(
+def extract_text(
     in_dir: Path = typer.Argument(..., help="Path to input PDF files"),
     out_dir: Optional[Path] = typer.Option(
         Path("."),
         "--dir",
         help="The directory where the extracted output files will be created.",
     ),
-    text_only: bool = typer.Option(False, help="Extract text only"),
 ):
     logging.basicConfig(
         filename=f'{out_dir}/extract.log',           
@@ -97,7 +96,7 @@ def extract(
         logger.info(pdf.name)
         try:
             paper = F.PaperItem(pdf)
-            paper.extract(out_dir, text_only)
+            paper.extract(out_dir, text_only=True)
         except Exception as e:
             logger.error(f"exception: {type(e)}")
             continue

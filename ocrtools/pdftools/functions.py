@@ -72,17 +72,6 @@ def export_pages(pdf: Path, outdir: Path, page_start: int, page_end: int):
         pix.save(outdir / f"page-{str(page.number+1).zfill(4)}.png")
 
 # -----------------------------------------------------------------------------
-def page2text(page):
-    rect = fitz.Rect(
-        0,
-        0,
-        page.rect.width,
-        page.rect.height,
-    )
-    text = page.get_textbox(rect)
-    return text
-
-# -----------------------------------------------------------------------------
 def recoverpix(doc, item):
     xref = item[0]  # xref of PDF image
     smask = item[1]  # xref of its /SMask
@@ -183,8 +172,9 @@ class PaperItem:
         textdir = basedir/"text"
         if not textdir.exists():
             textdir.mkdir(parents=True)
+        
         textfile = textdir/f"{self.source.stem}.txt"
-        textfile.write_text(chr(12).join([page2text(page) for page in doc]))
+        textfile.write_text(chr(12).join([page.get_text(sort=True) for page in doc]))
         
         if not text_only:
             imagedir = basedir/f"images/{self.source.stem}"
