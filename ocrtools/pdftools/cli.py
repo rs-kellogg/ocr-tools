@@ -75,13 +75,14 @@ def export_tables(
 
 # -----------------------------------------------------------------------------
 @app.command()
-def extract_all(
+def extract(
     in_dir: Path = typer.Argument(..., help="Path to input PDF files"),
     out_dir: Optional[Path] = typer.Option(
         Path("."),
         "--dir",
         help="The directory where the extracted output files will be created.",
     ),
+    text_only: bool = typer.Option(False, help="Extract text only"),
 ):
     logging.basicConfig(
         filename=f'{out_dir}/extract.log',           
@@ -96,7 +97,7 @@ def extract_all(
         logger.info(pdf.name)
         try:
             paper = F.PaperItem(pdf)
-            paper.extract(out_dir)
+            paper.extract(out_dir, text_only)
         except Exception as e:
             logger.error(f"exception: {type(e)}")
             continue

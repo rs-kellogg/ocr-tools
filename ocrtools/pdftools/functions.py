@@ -176,7 +176,7 @@ class PaperItem:
     def __init__(self, source: Path):
         self.source = source
 
-    def extract(self, basedir: str):
+    def extract(self, basedir: str, text_only: bool):
         doc = fitz.open(self.source)
         
         basedir = Path(basedir)
@@ -186,8 +186,9 @@ class PaperItem:
         textfile = textdir/f"{self.source.stem}.txt"
         textfile.write_text(chr(12).join([page2text(page) for page in doc]))
         
-        imagedir = basedir/f"images/{self.source.stem}"
-        if not imagedir.exists():
-            imagedir.mkdir(parents=True)
-        save_images(self.source, imagedir)     
+        if not text_only:
+            imagedir = basedir/f"images/{self.source.stem}"
+            if not imagedir.exists():
+                imagedir.mkdir(parents=True)
+            save_images(self.source, imagedir)     
 
