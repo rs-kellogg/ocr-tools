@@ -69,7 +69,6 @@ def append_row(df: pl.DataFrame, file_name: str, status: str, note: str):
 # reactive variables
 current_file_index = solara.reactive(0)
 current_file = solara.reactive(csv_files[current_file_index.value])
-
 load_file = solara.reactive(True)
 text = solara.reactive(get_field(review_status_df, current_file.value.name, "note", ""))
 status = solara.reactive(get_field(review_status_df, current_file.value.name, "status", "review"))
@@ -183,11 +182,12 @@ def Page(name: Optional[str] = "1970"):
             else:
                 with solara.lab.Tabs():
                     with solara.lab.Tab("Edit Cells"):
-                        dg = datagrid(current_file.value, load_file)
+                        load_file.set(False)
+                        dg = datagrid(current_file, load_file)
                         dg.key(f'datagrid-{load_file}')
                         
                     with solara.lab.Tab("Add/Remove"):
-                        dataframe(current_file.value, load_file)
+                        dataframe(current_file, load_file)
 
         solara.Button("Reset to initial layout", on_click=lambda: set_grid_layout(grid_layout_initial))
         solara.GridDraggable(items=[card1, card2, card3, card4], grid_layout=grid_layout, resizable=True, draggable=False, on_grid_layout=set_grid_layout)

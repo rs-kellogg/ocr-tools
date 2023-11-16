@@ -40,13 +40,13 @@ def cell_observer_factory(grid, file, load_file):
 
 
 @solara.component
-def datagrid(file: Path, load_file):
+def datagrid(file: solara.Reactive, load_file: solara.Reactive):
     renderer = TextRenderer(
         text_wrap=True,
         text_color="black",
         background_color=background_color_factory(),
     )
-    df = pd.read_csv(file, index_col=0)
+    df = pd.read_csv(file.value, index_col=0)
     grid = DataGrid(
         dataframe=df,
         editable=True,
@@ -55,37 +55,40 @@ def datagrid(file: Path, load_file):
         base_column_size=200,
         default_renderer=renderer,
     )
-    grid.on_cell_change(cell_observer_factory(grid, file, load_file))
+    grid.on_cell_change(cell_observer_factory(grid, file.value, load_file))
     display(grid)
 
 
 @solara.component
-def dataframe(file: Path, load_file):
-    df = pd.read_csv(file, index_col=0)
+def dataframe(file: solara.Reactive, load_file: solara.Reactive):
+    df = pd.read_csv(file.value, index_col=0)
 
     column, set_column = solara.use_state(cast(Optional[str], None))
     cell, set_cell = solara.use_state(cast(Dict[str, Any], {}))
+
+    def write_file(df):
+        df.to_csv(file.value, index=True)
+        load_file.set(True)
 
     def insert_left_column(column):
         set_column(column)
         idx = df.columns.get_loc(column)
         df.insert(idx, "new", [""] * len(df), allow_duplicates=True)
-        df.to_csv(file, index=True)
-        load_file.value = True
+        write_file(df)
 
     def insert_right_column(column):
         set_column(column)
         idx = df.columns.get_loc(column)
         df.insert(idx + 1, "new", [""] * len(df), allow_duplicates=True)
-        df.to_csv(file, index=True)
-        load_file.value = True
+        write_file(df)
+
 
     def delete_column(column):
         set_column(column)
         idx = df.columns.get_loc(column)
         df.drop(columns=[column], inplace=True)
-        df.to_csv(file, index=True)
-        load_file.value = True
+        write_file(df)
+
 
     def insert_before_row(column, row_index):
         set_cell(dict(column=column, row_index=row_index))
@@ -100,8 +103,8 @@ def dataframe(file: Path, load_file):
         )
         parts.append(df.iloc[row_index:])
         df2 = pd.concat(parts).reset_index(drop=True)
-        df2.to_csv(file, index=True)
-        load_file.value = True
+        write_file(df2)
+
 
     def insert_after_row(column, row_index):
         set_cell(dict(column=column, row_index=row_index))
@@ -112,14 +115,14 @@ def dataframe(file: Path, load_file):
             index=[df.index[-1] + 1],
         )
         df2 = pd.concat([iloc1, additional_row, iloc2]).reset_index(drop=True)
-        df2.to_csv(file, index=True)
-        load_file.value = True
+        write_file(df2)
+
 
     def delete_row(column, row_index):
         set_cell(dict(column=column, row_index=row_index))
         df2 = df.drop(index=[row_index])
-        df2.to_csv(file, index=True)
-        load_file.value = True
+        write_file(df2)
+
 
     column_actions = [
         solara.ColumnAction(icon="mdi-table-column-plus-before", name="", on_click=insert_left_column),
