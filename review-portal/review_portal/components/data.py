@@ -43,7 +43,7 @@ def background_color_factory():
 
 def cell_observer_factory(grid, file: solara.Reactive):
     def cell_changed(e):
-        row, column, col_index, value = e['row'], e['column'], e['column_index'], e['value']
+        row, column, col_index, value = e["row"], e["column"], e["column_index"], e["value"]
         df = grid.data.copy()
         df.iat[row, col_index] = value
         write_file(df, file)

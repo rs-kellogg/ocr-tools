@@ -40,7 +40,6 @@ png_files.sort()
 # ---------------------------------------------------------------------------------------------------------------------
 # review metadata
 review_schema = {"file": pl.Utf8, "status": pl.Utf8, "note": pl.Utf8, "timestamp": pl.Utf8}
-
 review_status_df = pl.read_csv(
     DATA_DIR / "review_status.csv",
     schema=review_schema,
