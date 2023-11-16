@@ -1,4 +1,5 @@
 from pathlib import Path
+import temppathlib
 from typing import Optional, cast, Dict, Any, Callable
 import pandas as pd
 import polars as pl
@@ -30,17 +31,16 @@ def background_color_factory():
     return VegaExpr(value=value)
 
 
-def cell_observer_factory(grid, file, load_file):
+def cell_observer_factory(grid, file):
     def cell_changed(e):
         grid.data.iat[e["row"], e["column_index"]] = e["value"]
         grid.data.to_csv(file, index=True)
-        load_file.value = True
 
     return cell_changed
 
 
 @solara.component
-def datagrid(file: solara.Reactive, load_file: solara.Reactive):
+def datagrid(file: solara.Reactive):
     renderer = TextRenderer(
         text_wrap=True,
         text_color="black",
@@ -55,12 +55,12 @@ def datagrid(file: solara.Reactive, load_file: solara.Reactive):
         base_column_size=200,
         default_renderer=renderer,
     )
-    grid.on_cell_change(cell_observer_factory(grid, file.value, load_file))
+    grid.on_cell_change(cell_observer_factory(grid, file.value))
     display(grid)
 
 
 @solara.component
-def dataframe(file: solara.Reactive, load_file: solara.Reactive):
+def dataframe(file: solara.Reactive):
     df = pd.read_csv(file.value, index_col=0)
 
     column, set_column = solara.use_state(cast(Optional[str], None))
@@ -68,7 +68,12 @@ def dataframe(file: solara.Reactive, load_file: solara.Reactive):
 
     def write_file(df):
         df.to_csv(file.value, index=True)
-        load_file.set(True)
+        file_value = file.value
+        with temppathlib.TemporaryDirectory() as tmp_dir:
+            tmp_pth = tmp_dir.path / file_value.name
+            df.to_csv(tmp_pth, index=True)
+            file.set(tmp_pth)
+        file.set(file_value)
 
     def insert_left_column(column):
         set_column(column)
