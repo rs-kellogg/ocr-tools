@@ -40,9 +40,11 @@ png_files.sort()
 # ---------------------------------------------------------------------------------------------------------------------
 # review metadata
 review_schema = {"file": pl.Utf8, "status": pl.Utf8, "note": pl.Utf8, "timestamp": pl.Utf8}
-review_status_df = pl.read_csv(
-    DATA_DIR / "review_status.csv",
-    schema=review_schema,
+review_status_df = solara.reactive(
+    pl.read_csv(
+        DATA_DIR / "review_status.csv",
+        schema=review_schema
+    )
 )
 
 
@@ -69,22 +71,22 @@ def append_row(df: pl.DataFrame, file_name: str, status: str, note: str):
 # reactive variables
 current_file_index = solara.reactive(0)
 current_file = solara.reactive(csv_files[current_file_index.value])
-text = solara.reactive(get_field(review_status_df, current_file.value.name, "note", ""))
-status = solara.reactive(get_field(review_status_df, current_file.value.name, "status", "review"))
+text = solara.reactive(get_field(review_status_df.value, current_file.value.name, "note", ""))
+status = solara.reactive(get_field(review_status_df.value, current_file.value.name, "status", "review"))
 
 
 # ---------------------------------------------------------------------------------------------------------------------
 # functions
 def load_metadata():
-    global review_status_df
-    text.value = get_field(review_status_df, current_file.value.name, "note", "")
-    status.value = get_field(review_status_df, current_file.value.name, "status", "review")
+    text.value = get_field(review_status_df.value, current_file.value.name, "note", "")
+    status.value = get_field(review_status_df.value, current_file.value.name, "status", "review")
 
 
 def save_metadata():
-    global review_status_df
-    review_status_df = append_row(review_status_df, current_file.value.name, status.value, text.value)
-    review_status_df.write_csv(DATA_DIR / "review_status.csv")
+    review_status_df.set(
+        append_row(review_status_df.value, current_file.value.name, status.value, text.value)
+    )
+    review_status_df.value.write_csv(DATA_DIR / "review_status.csv")
 
 
 def set_current_file(index: int):
@@ -166,7 +168,7 @@ def Page(name: Optional[str] = "1970"):
                     icon_name="mdi-arrow-right-bold-box",
                     on_click=lambda: set_current_file(min(current_file_index.value + 1, len(csv_files) - 1)),
                 )
-                # solara.Button("", outlined=True, color="primary", icon_name="save", on_click=save_metadata)
+                solara.Button("", outlined=True, color="primary", icon_name="save", on_click=save_metadata)
                 solara.Button("", outlined=True, color="primary", icon_name="refresh", on_click=on_restore)
                 solara.Button("Clear Notes", on_click=lambda: text.set(""))
             solara.InputText("Notes", value=text, continuous_update=True)
