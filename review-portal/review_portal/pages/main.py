@@ -184,8 +184,8 @@ def Page(name: Optional[str] = "1970"):
                     with solara.lab.Tab("Edit Cells"):
                         load_file.set(False)
                         dg = datagrid(current_file, load_file)
-                        dg.key(f'datagrid-{load_file}')
-                        
+                        dg.key(f"datagrid-{load_file}")
+
                     with solara.lab.Tab("Add/Remove"):
                         dataframe(current_file, load_file)
 

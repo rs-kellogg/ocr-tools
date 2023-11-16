@@ -8,13 +8,14 @@ from .main import HERE, DATA_DIR, PDF_DIR, CSV_DIR, PNG_DIR
 
 status = solara.reactive("all")
 
+
 @solara.component
 def DataGrid():
     review_schema = {"file": pl.Utf8, "status": pl.Utf8, "note": pl.Utf8, "timestamp": pl.Utf8}
     review_status_df = pl.read_csv(
         DATA_DIR / "review_status.csv",
         schema=review_schema,
-        ).select(pl.col("file"), pl.col("timestamp"), pl.col("status"), pl.col("note"))
+    ).select(pl.col("file"), pl.col("timestamp"), pl.col("status"), pl.col("note"))
 
     def filter_status(status):
         # print(f"calling filter_status: {status.value}")

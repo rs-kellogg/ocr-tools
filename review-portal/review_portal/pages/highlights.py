@@ -25,16 +25,16 @@ color = solara.reactive(colors[0])
 def background_patterns():
     schema = {"pattern": pl.Utf8, "color": pl.Utf8}
     patterns_df = pl.read_csv(
-        DATA_DIR/"background.csv",
+        DATA_DIR / "background.csv",
         schema=schema,
     )
-    
+
     def cell_observer_factory(grid, file, load_file):
         def cell_changed(e):
             grid.data.iat[e["row"], e["column_index"]] = e["value"]
             grid.data.to_csv(file, index=False, quoting=csv.QUOTE_ALL)
             load_file.value = True
-        
+
         return cell_changed
 
     grid = ipydatagrid.DataGrid(
@@ -44,11 +44,7 @@ def background_patterns():
         base_row_size=30,
         base_column_size=180,
     )
-    grid.on_cell_change(cell_observer_factory(
-        grid, 
-        file=DATA_DIR/"background.csv", 
-        load_file=load_file)
-    )
+    grid.on_cell_change(cell_observer_factory(grid, file=DATA_DIR / "background.csv", load_file=load_file))
     return display(grid)
 
 

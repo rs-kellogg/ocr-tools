@@ -71,6 +71,7 @@ def export_pages(pdf: Path, outdir: Path, page_start: int, page_end: int):
         pix = page.get_pixmap(matrix=mat)
         pix.save(outdir / f"page-{str(page.number+1).zfill(4)}.png")
 
+
 # -----------------------------------------------------------------------------
 def recoverpix(doc, item):
     xref = item[0]  # xref of PDF image
@@ -145,7 +146,7 @@ def save_images(file: Path, imagedir: Path):
             if len(imgdata) / (width * height * n) <= relsize:
                 continue
             # print(f"xref: {xref}")
-            imgfile = imagedir/f"{xref}.{image['ext']}"
+            imgfile = imagedir / f"{xref}.{image['ext']}"
             # imgfile = os.path.join(imgdir, "%05i.%s" % (xref, image["ext"]))
             fout = open(imgfile, "wb")
             fout.write(imgdata)
@@ -157,6 +158,7 @@ def save_images(file: Path, imagedir: Path):
 @dataclass
 class PaperItem:
     """Class for representing Papers"""
+
     source: Path
     texts: List[str]
     images: List
@@ -167,18 +169,17 @@ class PaperItem:
 
     def extract(self, basedir: str, text_only: bool):
         doc = fitz.open(self.source)
-        
+
         basedir = Path(basedir)
-        textdir = basedir/"text"
+        textdir = basedir / "text"
         if not textdir.exists():
             textdir.mkdir(parents=True)
-        
-        textfile = textdir/f"{self.source.stem}.txt"
+
+        textfile = textdir / f"{self.source.stem}.txt"
         textfile.write_text(chr(12).join([page.get_text(sort=True) for page in doc]))
-        
+
         if not text_only:
-            imagedir = basedir/f"images/{self.source.stem}"
+            imagedir = basedir / f"images/{self.source.stem}"
             if not imagedir.exists():
                 imagedir.mkdir(parents=True)
-            save_images(self.source, imagedir)     
-
+            save_images(self.source, imagedir)

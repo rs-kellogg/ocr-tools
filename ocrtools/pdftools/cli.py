@@ -83,11 +83,7 @@ def extract_text(
         help="The directory where the extracted output files will be created.",
     ),
 ):
-    logging.basicConfig(
-        filename=f'{out_dir}/extract.log',           
-        level=logging.INFO,  
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename=f"{out_dir}/extract.log", level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
     logger = logging.getLogger()
 

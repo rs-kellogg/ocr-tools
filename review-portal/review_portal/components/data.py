@@ -21,12 +21,12 @@ def background_color_factory():
     value = ""
     num_cases = 0
     for row in background_df.rows(named=True):
-        if row['pattern'] != "" and row['color'] != "":
+        if row["pattern"] != "" and row["color"] != "":
             value += f"if(test('{row['pattern']}', cell.value), '{row['color']}',\n"
             num_cases += 1
-        elif row['pattern'] == "" and row['color'] != "":
+        elif row["pattern"] == "" and row["color"] != "":
             value += f"{row['color']}{')'*(num_cases)}"
-            break        
+            break
     return VegaExpr(value=value)
 
 
@@ -82,13 +82,11 @@ def dataframe(file: solara.Reactive, load_file: solara.Reactive):
         df.insert(idx + 1, "new", [""] * len(df), allow_duplicates=True)
         write_file(df)
 
-
     def delete_column(column):
         set_column(column)
         idx = df.columns.get_loc(column)
         df.drop(columns=[column], inplace=True)
         write_file(df)
-
 
     def insert_before_row(column, row_index):
         set_cell(dict(column=column, row_index=row_index))
@@ -105,7 +103,6 @@ def dataframe(file: solara.Reactive, load_file: solara.Reactive):
         df2 = pd.concat(parts).reset_index(drop=True)
         write_file(df2)
 
-
     def insert_after_row(column, row_index):
         set_cell(dict(column=column, row_index=row_index))
         iloc1 = df.iloc[: row_index + 1]
@@ -117,12 +114,10 @@ def dataframe(file: solara.Reactive, load_file: solara.Reactive):
         df2 = pd.concat([iloc1, additional_row, iloc2]).reset_index(drop=True)
         write_file(df2)
 
-
     def delete_row(column, row_index):
         set_cell(dict(column=column, row_index=row_index))
         df2 = df.drop(index=[row_index])
         write_file(df2)
-
 
     column_actions = [
         solara.ColumnAction(icon="mdi-table-column-plus-before", name="", on_click=insert_left_column),
