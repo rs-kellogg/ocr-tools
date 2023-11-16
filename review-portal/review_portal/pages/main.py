@@ -8,6 +8,7 @@ import pandas as pd
 import polars as pl
 from ipydatagrid import Expr, DataGrid, TextRenderer
 from py2vega.functions.regexp import regexp, test
+import reacton
 import solara
 import solara.lab
 from solara.alias import rv
@@ -181,12 +182,10 @@ def Page(name: Optional[str] = "1970"):
                     pdf_viewer(f"{name}.pdf", current_file.value)
 
         with solara.Card(margin=0) as card4:
-            with solara.lab.Tabs():
-                with solara.lab.Tab("Edit Cells"):
-                    dg = datagrid(current_file)
-                    dg.key(f"datagrid-{current_file}")
-                with solara.lab.Tab("Add/Remove"):
-                    dataframe(current_file)
+            with solara.VBox():
+                dg = datagrid(current_file)
+                dg.key(f"dg1-{current_file}")   
+                dataframe(current_file)
 
         solara.Button("Reset to initial layout", on_click=lambda: set_grid_layout(grid_layout_initial))
         solara.GridDraggable(items=[card1, card2, card3, card4], grid_layout=grid_layout, resizable=True, draggable=False, on_grid_layout=set_grid_layout)

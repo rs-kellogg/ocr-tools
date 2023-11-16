@@ -16,11 +16,15 @@ DATA_DIR = HERE.parent / f"../public/"
 
 def write_file(df, file: solara.Reactive):
     df.to_csv(file.value, index=True)
+
+    # write contents to a temp file first
+    # this is to force the solara elements to update
     file_value = file.value
     with temppathlib.TemporaryDirectory() as tmp_dir:
         tmp_pth = tmp_dir.path / file_value.name
         df.to_csv(tmp_pth, index=True)
         file.set(tmp_pth)
+
     file.set(file_value)
 
 
