@@ -30,7 +30,6 @@ PNG_DIR = DATA_DIR / "png"
 # csv files
 csv_files = list(CSV_DIR.glob("*.csv"))
 csv_files.sort()
-current_file = csv_files[0]
 
 # ---------------------------------------------------------------------------------------------------------------------
 # png files
@@ -69,38 +68,39 @@ def append_row(df: pl.DataFrame, file_name: str, status: str, note: str):
 # ---------------------------------------------------------------------------------------------------------------------
 # reactive variables
 current_file_index = solara.reactive(0)
+current_file = solara.reactive(csv_files[current_file_index.value])
+
 load_file = solara.reactive(True)
-text = solara.reactive(get_field(review_status_df, current_file.name, "note", ""))
-status = solara.reactive(get_field(review_status_df, current_file.name, "status", "review"))
+text = solara.reactive(get_field(review_status_df, current_file.value.name, "note", ""))
+status = solara.reactive(get_field(review_status_df, current_file.value.name, "status", "review"))
 
 
 # ---------------------------------------------------------------------------------------------------------------------
 # functions
 def load_metadata():
     global review_status_df
-    text.value = get_field(review_status_df, current_file.name, "note", "")
-    status.value = get_field(review_status_df, current_file.name, "status", "review")
+    text.value = get_field(review_status_df, current_file.value.name, "note", "")
+    status.value = get_field(review_status_df, current_file.value.name, "status", "review")
 
 
 def save_metadata():
     global review_status_df
-    review_status_df = append_row(review_status_df, current_file.name, status.value, text.value)
+    review_status_df = append_row(review_status_df, current_file.value.name, status.value, text.value)
     review_status_df.write_csv(DATA_DIR / "review_status.csv")
 
 
 def set_current_file(index: int):
-    global current_file
     save_metadata()
-    current_file_index.value = index
-    current_file = csv_files[current_file_index.value]
+    current_file_index.set(index)
+    current_file.set(csv_files[current_file_index.value])
     load_metadata()
-    load_file.value = True
+    load_file.set(True)
 
 
 def on_restore():
-    repo = git.Repo(current_file.parent.parent)
-    repo.git.checkout([f"csv/{current_file.name}"])
-    load_file.value = True
+    repo = git.Repo(current_file.value.parent.parent)
+    repo.git.checkout([f"csv/{current_file.value.name}"])
+    load_file.set(True)
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ def Page(name: Optional[str] = "1970"):
 
     with solara.VBox() as main:
         with solara.Card(margin=0) as card1:
-            solara.Info(f"{name} - {current_file.name}")
+            solara.Info(f"{name} - {current_file.value.name}")
 
         with solara.Card(title="", margin=0) as card2:
             with solara.CardActions():
@@ -172,20 +172,22 @@ def Page(name: Optional[str] = "1970"):
         with solara.Card(margin=0) as card3:
             with solara.lab.Tabs():
                 with solara.lab.Tab("PNG"):
-                    png_viewer(f"{name}.pdf", current_file)
+                    png_viewer(f"{name}.pdf", current_file.value)
                 with solara.lab.Tab("PDF"):
-                    pdf_viewer(f"{name}.pdf", current_file)
+                    pdf_viewer(f"{name}.pdf", current_file.value)
 
         with solara.Card(margin=0) as card4:
             if load_file.value:
-                solara.Info(f"loading file: {current_file}")
-                load_file.value = False
+                solara.Info(f"loading file: {current_file.value}")
+                load_file.set(False)
             else:
                 with solara.lab.Tabs():
                     with solara.lab.Tab("Edit Cells"):
-                        datagrid(current_file, load_file)
+                        dg = datagrid(current_file.value, load_file)
+                        dg.key(f'datagrid-{load_file}')
+                        
                     with solara.lab.Tab("Add/Remove"):
-                        dataframe(current_file, load_file)
+                        dataframe(current_file.value, load_file)
 
         solara.Button("Reset to initial layout", on_click=lambda: set_grid_layout(grid_layout_initial))
         solara.GridDraggable(items=[card1, card2, card3, card4], grid_layout=grid_layout, resizable=True, draggable=False, on_grid_layout=set_grid_layout)
