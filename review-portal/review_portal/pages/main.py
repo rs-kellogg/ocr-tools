@@ -167,7 +167,7 @@ def Page(name: Optional[str] = "1970"):
                     icon_name="mdi-arrow-right-bold-box",
                     on_click=lambda: set_current_file(min(current_file_index.value + 1, len(csv_files) - 1)),
                 )
-                solara.Button("", outlined=True, color="primary", icon_name="save", on_click=save_metadata)
+                # solara.Button("", outlined=True, color="primary", icon_name="save", on_click=save_metadata)
                 solara.Button("", outlined=True, color="primary", icon_name="refresh", on_click=on_restore)
                 solara.Button("Clear Notes", on_click=lambda: text.set(""))
             solara.InputText("Notes", value=text, continuous_update=True)

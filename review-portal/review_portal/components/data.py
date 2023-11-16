@@ -14,6 +14,16 @@ HERE = Path(__file__)
 DATA_DIR = HERE.parent / f"../public/"
 
 
+def write_file(df, file: solara.Reactive):
+    df.to_csv(file.value, index=True)
+    file_value = file.value
+    with temppathlib.TemporaryDirectory() as tmp_dir:
+        tmp_pth = tmp_dir.path / file_value.name
+        df.to_csv(tmp_pth, index=True)
+        file.set(tmp_pth)
+    file.set(file_value)
+
+
 def background_color_factory():
     background_df = pl.read_csv(
         DATA_DIR / "background.csv",
@@ -31,10 +41,12 @@ def background_color_factory():
     return VegaExpr(value=value)
 
 
-def cell_observer_factory(grid, file):
+def cell_observer_factory(grid, file: solara.Reactive):
     def cell_changed(e):
-        grid.data.iat[e["row"], e["column_index"]] = e["value"]
-        grid.data.to_csv(file, index=True)
+        row, column, col_index, value = e['row'], e['column'], e['column_index'], e['value']
+        df = grid.data.copy()
+        df.iat[row, col_index] = value
+        write_file(df, file)
 
     return cell_changed
 
@@ -55,7 +67,7 @@ def datagrid(file: solara.Reactive):
         base_column_size=200,
         default_renderer=renderer,
     )
-    grid.on_cell_change(cell_observer_factory(grid, file.value))
+    grid.on_cell_change(cell_observer_factory(grid, file))
     display(grid)
 
 
@@ -66,32 +78,23 @@ def dataframe(file: solara.Reactive):
     column, set_column = solara.use_state(cast(Optional[str], None))
     cell, set_cell = solara.use_state(cast(Dict[str, Any], {}))
 
-    def write_file(df):
-        df.to_csv(file.value, index=True)
-        file_value = file.value
-        with temppathlib.TemporaryDirectory() as tmp_dir:
-            tmp_pth = tmp_dir.path / file_value.name
-            df.to_csv(tmp_pth, index=True)
-            file.set(tmp_pth)
-        file.set(file_value)
-
     def insert_left_column(column):
         set_column(column)
         idx = df.columns.get_loc(column)
         df.insert(idx, "new", [""] * len(df), allow_duplicates=True)
-        write_file(df)
+        write_file(df, file)
 
     def insert_right_column(column):
         set_column(column)
         idx = df.columns.get_loc(column)
         df.insert(idx + 1, "new", [""] * len(df), allow_duplicates=True)
-        write_file(df)
+        write_file(df, file)
 
     def delete_column(column):
         set_column(column)
         idx = df.columns.get_loc(column)
         df.drop(columns=[column], inplace=True)
-        write_file(df)
+        write_file(df, file)
 
     def insert_before_row(column, row_index):
         set_cell(dict(column=column, row_index=row_index))
@@ -106,7 +109,7 @@ def dataframe(file: solara.Reactive):
         )
         parts.append(df.iloc[row_index:])
         df2 = pd.concat(parts).reset_index(drop=True)
-        write_file(df2)
+        write_file(df2, file)
 
     def insert_after_row(column, row_index):
         set_cell(dict(column=column, row_index=row_index))
@@ -117,12 +120,12 @@ def dataframe(file: solara.Reactive):
             index=[df.index[-1] + 1],
         )
         df2 = pd.concat([iloc1, additional_row, iloc2]).reset_index(drop=True)
-        write_file(df2)
+        write_file(df2, file)
 
     def delete_row(column, row_index):
         set_cell(dict(column=column, row_index=row_index))
         df2 = df.drop(index=[row_index])
-        write_file(df2)
+        write_file(df2, file)
 
     column_actions = [
         solara.ColumnAction(icon="mdi-table-column-plus-before", name="", on_click=insert_left_column),
