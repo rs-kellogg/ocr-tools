@@ -60,6 +60,9 @@ include-package-data = true
 namespaces = true
 where = ["ocrtools"]
 
+[tool.hatch.build.targets.wheel]
+packages = ["ocrtools"]
+
 [project.scripts]
 ocrtools = "ocrtools.cli:app"
 

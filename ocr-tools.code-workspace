@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../PyMuPDF-Utilities"
+		},
+		{
+			"path": "../ocr-projects"
 		}
 	],
 	"settings": {}
