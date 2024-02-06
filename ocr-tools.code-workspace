@@ -7,7 +7,10 @@
 			"path": "../PyMuPDF-Utilities"
 		},
 		{
-			"path": "../ocr-projects"
+			"path": "../kotra-data"
+		},
+		{
+			"path": "../../projects/maddalena-ronchi"
 		}
 	],
 	"settings": {}
