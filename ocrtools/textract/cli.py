@@ -15,25 +15,27 @@ CONFIG: Dict[str, str] = {}
 
 # -----------------------------------------------------------------------------
 @app.command()
-def ocr_pdf_files(
+def ocr_files(
     indir: Path = typer.Argument(..., help="Path to input files"),
+    s3bucket: Path = typer.Argument(..., help="Name of S3 bucket"),
     outdir: Path = typer.Option(Path("."), help="Path to output page image files"),
+    file_type: str = typer.Option("pdf", help="Type of input files. Currently only supports 'pdf' and 'png'"),
 ):
-    console.print(f"OCR'ing files from: {indir}")
+    console.print(f"OCR'ing files from: {indir}, using S3 bucket: {s3bucket}")
     outdir.mkdir(parents=True, exist_ok=True)
 
     batch_size = 10
-    img_files = sorted(indir.glob("*.pdf"))
+    src_files = sorted(indir.glob(f"*.{file_type}"))
 
-    for i in range(0, len(img_files), batch_size):
+    for i in range(0, len(src_files), batch_size):
         # Extract the current batch of files
-        batch_files = img_files[i : i + batch_size]
+        batch_files = src_files[i : i + batch_size]
         doc_map = dict()
 
         # Process the files in the current batch
-        for file in batch_files:
-            console.print(f"OCR'ing file: {file}")
-            doc_map[file] = F.ocr_pdf(file)
+        for src_file in batch_files:
+            console.print(f"OCR'ing file: {src_file}")
+            doc_map[src_file] = F.ocr_file(src_file, s3_bucket=s3bucket, file_type=file_type)
 
         for file in doc_map:
             console.print(f"Saving OCR results for file: {file}")
@@ -46,38 +48,39 @@ def ocr_pdf_files(
 
 
 # -----------------------------------------------------------------------------
-@app.command()
-def ocr_png_files(
-    indir: Path = typer.Argument(..., help="Path to input PNG files"),
-    outdir: Path = typer.Option(Path("."), help="Path to output files"),
-):
-    console.print(f"OCR'ing files from: {indir}")
-    outdir.mkdir(parents=True, exist_ok=True)
+# @app.command()
+# def ocr_png_files(
+#     indir: Path = typer.Argument(..., help="Path to input PNG files"),
+#     s3bucket: Path = typer.Argument(..., help="Name of S3 bucket"),
+#     outdir: Path = typer.Option(Path("."), help="Path to output files"),
+# ):
+#     console.print(f"OCR'ing files from: {indir}")
+#     outdir.mkdir(parents=True, exist_ok=True)
 
-    batch_size = 10
-    img_files = sorted(indir.glob("*.png"))
+#     batch_size = 10
+#     img_files = sorted(indir.glob("*.png"))
 
-    for i in range(0, len(img_files), batch_size):
-        # Extract the current batch of files
-        batch_files = img_files[i : i + batch_size]
-        doc_map = dict()
+#     for i in range(0, len(img_files), batch_size):
+#         # Extract the current batch of files
+#         batch_files = img_files[i : i + batch_size]
+#         doc_map = dict()
 
-        # Process the files in the current batch
-        for png_file in batch_files:
-            console.print(f"OCR'ing file: {png_file}")
-            doc_map[png_file] = F.ocr_png(png_file)
+#         # Process the files in the current batch
+#         for png_file in batch_files:
+#             console.print(f"OCR'ing file: {png_file}")
+#             doc_map[png_file] = F.ocr_file(png_file, s3_bucket=s3bucket, file_type="image")
 
-        for png_file in doc_map:
-            console.print(f"Saving OCR results for file: {png_file}")
-            doc = doc_map[png_file]
-            doc.text
-            json_path = outdir / f"json/{png_file.stem}.json"
-            json_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(json_path, "w") as f:
-                json.dump(doc.document.response, f)
-            png_path = outdir / f"png/{png_file.stem}.png"
-            png_path.parent.mkdir(parents=True, exist_ok=True)
-            doc.document.visualize().save(png_path)
+#         for file in doc_map:
+#             console.print(f"Saving OCR results for file: {file}")
+#             doc = doc_map[file]
+#             doc.text
+#             json_path = outdir / f"json/{png_file.stem}.json"
+#             json_path.parent.mkdir(parents=True, exist_ok=True)
+#             with open(json_path, "w") as f:
+#                 json.dump(doc.document.response, f)
+#             png_path = outdir / f"png/{png_file.stem}.png"
+#             png_path.parent.mkdir(parents=True, exist_ok=True)
+#             doc.document.visualize().save(png_path)
 
 
 # -----------------------------------------------------------------------------
@@ -97,12 +100,12 @@ def export_json_tables(
 @app.command()
 def export_json_text(
     indir: Path = typer.Argument(..., help="Path to input files"),
-    outdir: Path = typer.Option(Path("."), help="Path to output text files"),
+    outdir: Path = typer.Option(Path("./text"), help="Path to output text files"),
 ):
-    console.print(f"Extracting tables from: {indir}")
+    console.print(f"Extracting text from: {indir}")
     outdir.mkdir(parents=True, exist_ok=True)
     for json_file in indir.glob("*.json"):
-        console.print(f"Extracting tables from: {json_file}")
+        console.print(f"Extracting text from: {json_file}")
         F.export_json_text(json_file, outdir)
 
 

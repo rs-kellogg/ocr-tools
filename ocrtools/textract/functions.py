@@ -11,41 +11,38 @@ from textractor import Textractor
 from textractor.data.constants import TextractFeatures
 
 
-
 # -----------------------------------------------------------------------------
-def ocr_png(
-    img_file: Path,
+def ocr_file(
+    file: Path,
+    s3_bucket: str,
     aws_profile: str = "default",
-    s3_bucket: str = "s3://kellogg-ocr/temp",
-    extract_tables = False,
+    extract_tables: bool = False,
+    file_type: str = "pdf",
 ) -> LazyDocument:
-    if extract_tables:
-        features = [TextractFeatures.TABLES]
+    if file_type == "pdf":
+        file_source = str(file)
+        save_image = False
+    elif file_type == "png":
+        file_source = Image.open(str(file))
+        save_image = True
     else:
-        features = []
-    extractor = Textractor(profile_name=aws_profile)
-    doc = extractor.start_document_text_detection(
-        file_source=Image.open(str(img_file)),
-        s3_output_path=s3_bucket,
-        s3_upload_path=s3_bucket,
-        save_image=True,
-    )
-    return doc
+        raise ValueError(f"Invalid file type: {file_type}")
 
-
-# -----------------------------------------------------------------------------
-def ocr_pdf(
-    pdf_file: Path,
-    aws_profile: str = "default",
-    s3_bucket: str = "s3://kellogg-ocr/temp",
-) -> LazyDocument:
     extractor = Textractor(profile_name=aws_profile)
-    doc = extractor.start_document_analysis(
-        file_source=str(pdf_file),
-        features=[TextractFeatures.TABLES],
-        s3_output_path=s3_bucket,
-        s3_upload_path=s3_bucket,
-        save_image=True,
+    if extract_tables:
+        doc = extractor.start_document_analysis(
+            file_source=file_source,
+            features=[TextractFeatures.TABLES],
+            s3_output_path=s3_bucket,
+            s3_upload_path=s3_bucket,
+            save_image=save_image,
+        )
+    else:
+        doc = extractor.start_document_text_detection(
+            file_source=file_source,
+            s3_upload_path=f"s3://{s3_bucket}",
+            s3_output_path=f"s3://{s3_bucket}",
+            save_image=save_image,
     )
     return doc
 
@@ -72,7 +69,6 @@ def export_json_text(json_path: Path, outdir: Path):
         outdir = Path(outdir)
     with open(json_path, "r") as f:
         doc = Document.open(f)
-        print(f"Exporting text from {json_path.name}")
         text_file = outdir / f"{json_path.stem}.txt"
         text_file.parent.mkdir(parents=True, exist_ok=True)
         text_file.write_text(doc.text)
