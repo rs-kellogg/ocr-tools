@@ -28,13 +28,7 @@ dependencies = [
     "img2pdf",
     "opencv-python",
     "deskew",
-    "amazon-textract-textractor",
-    "amazon-textract-helper",
-    "amazon-textract-caller",
-    "amazon-textract-geofinder",
-    "amazon-textract-response-parser",
-    "amazon-textract-prettyprinter",
-    "sentence-transformers",
+    "amazon-textract-textractor[pdf]",
 ]
 
 [project.urls]
