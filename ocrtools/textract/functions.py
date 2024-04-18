@@ -33,8 +33,8 @@ def ocr_file(
         doc = extractor.start_document_analysis(
             file_source=file_source,
             features=[TextractFeatures.TABLES],
-            s3_output_path=s3_bucket,
-            s3_upload_path=s3_bucket,
+            s3_upload_path=f"s3://{s3_bucket}",
+            s3_output_path=f"s3://{s3_bucket}",
             save_image=save_image,
         )
     else:
