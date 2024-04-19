@@ -6,12 +6,13 @@ from importlib import resources
 from pathlib import Path
 from ocrtools import data
 from ocrtools import __app_name__, __version__
-from ocrtools import preprocess, textract
+from ocrtools import preprocess, textract, pdf
 
 # -----------------------------------------------------------------------------
 app = typer.Typer()
 app.add_typer(preprocess.cli.app, name="preprocess")
 app.add_typer(textract.cli.app, name="textract")
+app.add_typer(pdf.cli.app, name="pdf")
 console = cons.Console(style="green on black")
 
 
@@ -24,6 +25,7 @@ with open(CONFIG_FILE_PATH) as conf_file:
     CONFIG = CONFIG if CONFIG else {}
     preprocess.cli.CONFIG = CONFIG
     textract.cli.CONFIG = CONFIG
+    pdf.cli.CONFIG = CONFIG
 
 
 def _version_callback(value: bool) -> None:

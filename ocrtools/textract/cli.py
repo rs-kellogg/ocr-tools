@@ -50,7 +50,7 @@ def ocr_files(
 @app.command()
 def export_json_tables(
     indir: Path = typer.Argument(..., help="Path to input files"),
-    outdir: Path = typer.Option(Path("."), help="Path to output CSV files"),
+    outdir: Path = typer.Option(Path("./csv"), help="Path to output CSV files"),
 ):
     console.print(f"Extracting tables from: {indir}")
     outdir.mkdir(parents=True, exist_ok=True)
