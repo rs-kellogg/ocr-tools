@@ -32,21 +32,14 @@ def extract_png_pages(
 @app.command()
 def deskew(
     img_file: Path = typer.Argument(..., help="Path to input image file"),
-    output: Path = typer.Option(None, help="Path to output image file"),
+    out: Path = typer.Option(None, help="Path to output image file"),
 ):
     console.print(f"deskewing image file: {img_file}")
-    if output is None:
-        output = img_file.parent / f"{img_file.stem}_deskewed{img_file.suffix}"
-    # img = im.open(img_file)
-    # img = F.deskew(img)
-    # img.save(output)
+    if out is None:
+        out = img_file.parent / f"{img_file.stem}_deskewed{img_file.suffix}"
+    
+    img = im.open(img_file)
+    img = F.deskew(img)
+    img.save(out)
 
-    # image = io.imread(img_file)
-    # rotated = F.deskew2(image)
-    # io.imsave(output, rotated.astype(np.uint8))
-
-    image = cv2.imread(str(img_file))
-    rotated = F.deskew3(image)
-    io.imsave(output, rotated.astype(np.uint8))
-
-    console.print(f"saved deskewed image to: {output}")
+    console.print(f"saved deskewed image to: {out}")
